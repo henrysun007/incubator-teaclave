@@ -65,7 +65,7 @@ jobs:
           . /opt/sgxsdk/environment &&
           . ~/.cargo/env &&
           cd build &&
-          make VERBOSE=1
+          make VERBOSE=1 -j
       - name: Build TVM example
         run: |
           . ~/.cargo/env &&
@@ -103,7 +103,7 @@ jobs:
           . /opt/sgxsdk/environment &&
           . ~/.cargo/env &&
           cd build &&
-          make VERBOSE=1
+          make VERBOSE=1 -j
       - name: Build TVM example
         run: |
           . ~/.cargo/env &&
