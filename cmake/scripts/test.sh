@@ -93,6 +93,8 @@ run_integration_tests() {
   start_storage_server
   popd
 
+  sleep 2
+
   pushd ${MT_SGXAPP_TOML_DIR}
   cargo test --manifest-path ${TEACLAVE_PROJECT_ROOT}/file_agent/Cargo.toml \
             --target-dir ${TEACLAVE_TARGET_DIR}/untrusted
@@ -237,21 +239,22 @@ run_examples() {
 
   pushd ${TEACLAVE_PROJECT_ROOT}/examples/python
   export PYTHONPATH=${TEACLAVE_PROJECT_ROOT}/sdk/python
-  python3 builtin_echo.py
-  python3 mesapy_echo.py
-  python3 mesapy_logistic_reg.py
-  python3 mesapy_optional_files.py
-  python3 builtin_gbdt_train.py
-  python3 builtin_online_decrypt.py
-  python3 builtin_private_join_and_compute.py
-  python3 builtin_ordered_set_intersect.py
-  python3 builtin_rsa_sign.py
-  python3 builtin_face_detection.py
-  python3 builtin_password_check.py
-  python3 wasm_c_simple_add.py
-  python3 wasm_rust_psi.py
-  python3 wasm_tvm_mnist.py
-  python3 test_disable_function.py
+  python3 builtin_echo.py &
+  python3 mesapy_echo.py &
+  python3 mesapy_logistic_reg.py &
+  python3 mesapy_optional_files.py &
+  python3 builtin_gbdt_train.py &
+  python3 builtin_online_decrypt.py &
+  python3 builtin_private_join_and_compute.py &
+  python3 builtin_ordered_set_intersect.py &
+  python3 builtin_rsa_sign.py &
+  python3 builtin_face_detection.py &
+  python3 builtin_password_check.py &
+  python3 wasm_c_simple_add.py &
+  python3 wasm_rust_psi.py &
+  python3 wasm_tvm_mnist.py &
+  python3 test_disable_function.py &
+  wait
   popd
 
   pushd ${TEACLAVE_PROJECT_ROOT}/examples/c

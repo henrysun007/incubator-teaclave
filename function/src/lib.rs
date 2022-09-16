@@ -51,22 +51,22 @@ pub use rsa_sign::RsaSign;
 #[cfg(feature = "enclave_unit_test")]
 pub mod tests {
     use super::*;
-    use teaclave_test_utils::check_all_passed;
+    use teaclave_test_utils::run_tests;
 
     pub fn run_tests() -> bool {
-        check_all_passed!(
-            echo::tests::run_tests(),
-            face_detection::tests::run_tests(),
-            gbdt_predict::tests::run_tests(),
-            gbdt_train::tests::run_tests(),
-            logistic_regression_predict::tests::run_tests(),
-            logistic_regression_train::tests::run_tests(),
-            password_check::tests::run_tests(),
-            online_decrypt::tests::run_tests(),
-            ordered_set_intersect::tests::run_tests(),
-            principal_components_analysis::tests::run_tests(),
-            private_join_and_compute::tests::run_tests(),
-            rsa_sign::tests::run_tests(),
+        run_tests!(
+            echo::tests::run_tests,
+            face_detection::tests::run_tests,
+            gbdt_predict::tests::run_tests,
+            gbdt_train::tests::run_tests,
+            logistic_regression_predict::tests::run_tests,
+            logistic_regression_train::tests::run_tests,
+            password_check::tests::run_tests,
+            online_decrypt::tests::run_tests,
+            ordered_set_intersect::tests::run_tests,
+            principal_components_analysis::tests::run_tests,
+            private_join_and_compute::tests::run_tests,
+            rsa_sign::tests::run_tests,
         )
     }
 }

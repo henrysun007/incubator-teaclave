@@ -90,36 +90,36 @@ pub use disk_env::PosixDiskEnv;
 pub mod tests {
     use super::*;
     use std::prelude::v1::*;
-    use teaclave_test_utils::check_all_passed;
+    use teaclave_test_utils::run_tests;
 
     pub fn run_tests() -> bool {
-        check_all_passed!(
-            block::tests::run_tests(),
-            block_builder::tests::run_tests(),
-            blockhandle::tests::run_tests(),
-            cache::tests::run_tests(),
-            cmp::tests::run_tests(),
-            db_impl::tests::run_tests(),
-            db_iter::tests::run_tests(),
-            disk_env::tests::run_tests(),
-            filter::tests::run_tests(),
-            filter_block::tests::run_tests(),
-            key_types::tests::run_tests(),
-            log::tests::run_tests(),
-            mem_env::tests::run_tests(),
-            memtable::tests::run_tests(),
-            merging_iter::tests::run_tests(),
-            skipmap::tests::run_tests(),
-            snapshot::tests::run_tests(),
-            table_builder::tests::run_tests(),
-            table_cache::tests::run_tests(),
-            test_util::tests::run_tests(),
-            table_reader::tests::run_tests(),
-            types::tests::run_tests(),
-            version::tests::run_tests(),
-            version_edit::tests::run_tests(),
-            version_set::tests::run_tests(),
-            write_batch::tests::run_tests(),
+        run_tests!(
+            block::tests::run_tests,
+            block_builder::tests::run_tests,
+            blockhandle::tests::run_tests,
+            cache::tests::run_tests,
+            cmp::tests::run_tests,
+            db_impl::tests::run_tests,
+            db_iter::tests::run_tests,
+            disk_env::tests::run_tests,
+            filter::tests::run_tests,
+            filter_block::tests::run_tests,
+            key_types::tests::run_tests,
+            log::tests::run_tests,
+            mem_env::tests::run_tests,
+            memtable::tests::run_tests,
+            merging_iter::tests::run_tests,
+            skipmap::tests::run_tests,
+            snapshot::tests::run_tests,
+            table_builder::tests::run_tests,
+            table_cache::tests::run_tests,
+            test_util::tests::run_tests,
+            table_reader::tests::run_tests,
+            types::tests::run_tests,
+            version::tests::run_tests,
+            version_edit::tests::run_tests,
+            version_set::tests::run_tests,
+            write_batch::tests::run_tests,
         )
     }
 }
