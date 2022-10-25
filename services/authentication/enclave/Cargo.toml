@@ -56,7 +56,7 @@ rand      = { version = "0.7.0" }
 jsonwebtoken = { version = "7.2.0" }
 uuid      = { version = "0.8.1", features = ["v4"] }
 
-rusty-leveldb                  = { path = "../../../common/rusty_leveldb_sgx" }
+rusty-leveldb                  = { path = "../../../third_party/rusty_leveldb_sgx" }
 teaclave_attestation           = { path = "../../../attestation" }
 teaclave_config                = { path = "../../../config" }
 teaclave_proto                 = { path = "../../proto" }

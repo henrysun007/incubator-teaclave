@@ -55,7 +55,7 @@ thiserror   = { version = "1.0.9" }
 rand        = { version = "0.7.0" }
 rustls     = { version = "0.16.0", features = ["dangerous_configuration"] }
 
-rusty-leveldb = { path = "../../../common/rusty_leveldb_sgx", default-features = false, optional = true }
+rusty-leveldb = { path = "../../../third_party/rusty_leveldb_sgx", default-features = false, optional = true }
 protected_fs_rs    = { path = "../../../common/protected_fs_rs", default-features = false, optional = true }
 
 teaclave_attestation           = { path = "../../../attestation" }

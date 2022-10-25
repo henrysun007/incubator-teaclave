@@ -19,5 +19,7 @@ Basically, we have these submodules:
   - `mesapy`: a Python interpreter targeting SGX.
   - `rust-sgx-sdk`: Teaclave SGX SDK for standard libraries and Rust bindings of
     SGX libraries.
+  - `rusty_leveldb_sgx`: A LevelDB implementation, making key-value database in
+    SGX enclave possible.
   - `webassembly-micro-runtime`: A sandboxed runtime to execute(interpret)
     WebAssembly bytecode.

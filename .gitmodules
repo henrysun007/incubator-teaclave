@@ -17,3 +17,7 @@
 	path = third_party/wasm-micro-runtime
 	url = https://github.com/bytecodealliance/wasm-micro-runtime
 	ignore = dirty
+[submodule "third_party/leveldb-rs"]
+	path = third_party/rusty_leveldb_sgx
+	url = https://github.com/mesatee/leveldb-rs.git
+    branch = sgx-v1.1.3

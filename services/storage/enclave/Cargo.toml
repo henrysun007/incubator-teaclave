@@ -50,7 +50,7 @@ log       = { version = "0.4.6", features = ["release_max_level_info"] }
 serde     = { version = "1.0.92" }
 thiserror = { version = "1.0.9" }
 
-rusty-leveldb                  = { path = "../../../common/rusty_leveldb_sgx" }
+rusty-leveldb                  = { path = "../../../third_party/rusty_leveldb_sgx" }
 teaclave_attestation           = { path = "../../../attestation" }
 teaclave_config                = { path = "../../../config" }
 teaclave_proto                 = { path = "../../proto" }

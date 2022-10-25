@@ -89,7 +89,7 @@ teaclave_executor              = { path = "../../../executor" }
 teaclave_executor_context      = { path = "../../../executor/context" }
 teaclave_function              = { path = "../../../function" }
 teaclave_runtime               = { path = "../../../runtime" }
-rusty-leveldb                  = { path = "../../../common/rusty_leveldb_sgx", default-features = false, optional = true }
+rusty-leveldb                  = { path = "../../../third_party/rusty_leveldb_sgx", default-features = false, optional = true }
 
 teaclave_test_utils            = { path = "../../utils" }
 teaclave_attestation           = { path = "../../../attestation" }

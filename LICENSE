@@ -226,4 +226,4 @@ MIT License
 -----------
 
 third_party/mesapy
-common/rusty_leveldb_sgx
+third_party/rusty_leveldb_sgx
