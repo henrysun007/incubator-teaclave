@@ -29,7 +29,6 @@ default = [
 ]
 app = [ "default" ]
 mesalock_sgx = [
-    "sgx_tstd",
     "teaclave_crypto/mesalock_sgx",
     "protected_fs_rs/mesalock_sgx",
 ]
@@ -52,5 +51,3 @@ uuid         = { version = "0.8.1", features = ["v4", "v5", "serde"] }
 protected_fs_rs  = { path = "../common/protected_fs_rs" }
 teaclave_test_utils = { path = "../tests/utils", optional = true }
 teaclave_crypto = { path = "../crypto" }
-
-sgx_tstd = { version = "1.1.3", features = ["net", "backtrace"], optional = true }

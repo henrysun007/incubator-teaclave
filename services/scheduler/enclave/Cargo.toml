@@ -30,7 +30,6 @@ crate-type = ["staticlib", "rlib"]
 [features]
 default = []
 mesalock_sgx = [
-  "sgx_tstd",
   "teaclave_attestation/mesalock_sgx",
   "teaclave_proto/mesalock_sgx",
   "teaclave_binder/mesalock_sgx",
@@ -62,5 +61,4 @@ teaclave_types                 = { path = "../../../types" }
 teaclave_test_utils            = { path = "../../../tests/utils", optional = true }
 
 sgx_cov       = { version = "1.1.3", optional = true }
-sgx_tstd      = { version = "1.1.3", features = ["net", "thread", "backtrace"], optional = true }
 sgx_types     = { version = "1.1.3" }
