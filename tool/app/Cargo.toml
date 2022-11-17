@@ -22,7 +22,7 @@ authors = ["Teaclave Contributors <dev@teaclave.apache.org>"]
 description = "Teaclave SGX Tool"
 license = "Apache-2.0"
 build = "build.rs"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 log        = { version = "0.4.6", features = ["release_max_level_info"] }
