@@ -39,7 +39,7 @@ set_strvar_from_env_or(RUSTFLAGS "" "Rust flags")
 set_strvar_from_env_or(TEACLAVE_CMAKE_DBG ""
                        "set to turn on debug message for cmake")
 set(MESAPY_VERSION v1.0.0-sgx)
-set(RUSTUP_TOOLCHAIN "nightly-2020-10-25")
+set(RUSTUP_TOOLCHAIN "nightly-2022-10-22")
 option(COV "Turn on/off coverage" OFF)
 option(OFFLINE "Turn on/off cargo offline" OFF)
 option(TEST_MODE "Turn on/off test mode" OFF)
@@ -259,9 +259,24 @@ endif()
 target_compile_options(pycomponent PUBLIC -UWITH_THREAD -O2 -fPIC -Wimplicit
                                           -I/usr/lib/pypy/include)
 
-# sgx_trusted_lib
+add_custom_target(
+    default_std
+    COMMAND
+      ${CMAKE_COMMAND} -E env ${TEACLAVE_COMMON_ENVS} RUSTFLAGS=${RUSTFLAGS}
+      ${MT_SCRIPT_DIR}/cargo_build_ex.sh --target-dir ${TRUSTED_TARGET_DIR}/default_std
+      ${CARGO_BUILD_FLAGS} --features backtrace,net,thread -Zbuild-std=core,alloc
+      ${MTEE_EXTRA_CARGO_FLAGS} --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
+    COMMAND
+      mkdir -p ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}
+      mv ${TRUSTED_TARGET_DIR}/default_std/${SGX_LIB_TARGET}/${TARGET}/deps
+      ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib
+    DEPENDS prep
+    COMMENT "Building default std"
+    WORKING_DIRECTORY ${RUST_SGX_SDK}/rustlib/std
+    ) # default_std
+
 list(LENGTH SGX_LIBS SGX_LIB_LEN)
-set(SGX_LIB_DEPENDS prep mesapy pycomponent)
+set(SGX_LIB_DEPENDS prep mesapy pycomponent default_std)
 math(EXPR SGX_LIB_LAST_INDEX "${SGX_LIB_LEN} - 1")
 foreach(_i RANGE ${SGX_LIB_LAST_INDEX})
   list(GET SGX_LIBS ${_i} _pkg_name)
