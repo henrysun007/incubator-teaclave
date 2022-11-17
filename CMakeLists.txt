@@ -41,7 +41,7 @@ set_strvar_from_env_or(TEACLAVE_CMAKE_DBG ""
 set(MESAPY_VERSION v1.0.0-sgx)
 set(RUSTUP_TOOLCHAIN "nightly-2020-10-25")
 option(COV "Turn on/off coverage" OFF)
-option(OFFLINE "Turn on/off cargo offline" ON)
+option(OFFLINE "Turn on/off cargo offline" OFF)
 option(TEST_MODE "Turn on/off test mode" OFF)
 option(SGX_SIM_MODE "Turn on/off sgx simulation mode" OFF)
 option(DCAP "Turn on/off DCAP attestation" OFF)
