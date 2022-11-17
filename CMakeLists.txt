@@ -28,9 +28,9 @@ endif()
 find_package(Git)
 find_package(OpenSSL)
 check_exe_dependencies(rustup pypy)
-pkg_check_modules(INTEL_SGX_SDK QUIET libsgx_urts>=2.12.100.3)
+pkg_check_modules(INTEL_SGX_SDK QUIET libsgx_urts>=2.17.101.1)
 if(NOT INTEL_SGX_SDK_FOUND)
-  message(FATAL_ERROR "Intel SGX SDK (version 2.12.100.3) is not found or version not matched.")
+  message(FATAL_ERROR "Intel SGX SDK (version 2.17.1) is not found or version not matched.")
 endif()
 
 # ====== VARIABLES FOR CMAKE -D{VAR}=VAL CONFIGURATION BEGIN ======
