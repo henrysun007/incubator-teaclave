@@ -59,15 +59,16 @@ set(SGX_LIBRARY_PATH ${SGX_SDK}/lib64)
 
 set(SGX_COMMON_CFLAGS -m64 -O2)
 set(SGX_UNTRUSTED_CFLAGS ${SGX_COMMON_CFLAGS} -fPIC -Wno-attributes
-                         -I${SGX_SDK}/include -I${RUST_SGX_SDK}/edl)
+                         -I${SGX_SDK}/include -I${RUST_SGX_SDK}/sgx_edl/edl)
 set(SGX_TRUSTED_CFLAGS
     ${SGX_COMMON_CFLAGS}
     -nostdinc
     -fvisibility=hidden
     -fpie
     -fstack-protector
-    -I${RUST_SGX_SDK}/edl
+    -I${RUST_SGX_SDK}/sgx_edl/edl
     -I${RUST_SGX_SDK}/common/inc
+    -I${RUST_SGX_SDK}/common/inc/tlibc
     -I${SGX_SDK}/include
     -I${SGX_SDK}/include/tlibc
     -I${SGX_SDK}/include/stlport
