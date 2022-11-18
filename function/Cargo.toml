@@ -54,7 +54,7 @@ ring          = { version = "0.16.5" }
 base64        = { version = "0.13.0" }
 hex           = { version = "0.4.0"  }
 image         = { version = "0.22.4" }
-rustface      = { version = "0.1.2", features = [ "include_default_model" ] }
+rustface      = { version = "0.1.7", features = [ "include_default_model" ] }
 
 teaclave_types = { path = "../types" }
 teaclave_crypto = { path = "../crypto" }
