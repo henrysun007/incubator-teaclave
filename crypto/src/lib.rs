@@ -15,10 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![cfg_attr(feature = "mesalock_sgx", no_std)]
-#[cfg(feature = "mesalock_sgx")]
-extern crate sgx_tstd as std;
-
 use anyhow::{anyhow, ensure, Context, Result};
 use protected_fs::ProtectedFile;
 use rand::prelude::RngCore;
