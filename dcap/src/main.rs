@@ -27,7 +27,7 @@ extern crate rand;
 extern crate ring;
 extern crate serde_json;
 extern crate sgx_types;
-extern crate sgx_ucrypto;
+extern crate sgx_crypto;
 extern crate untrusted;
 extern crate uuid;
 
@@ -233,19 +233,19 @@ fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
             return QuoteVerificationResponse::BadRequest;
         }
 
-        let sha256 = sgx_ucrypto::SgxShaHandle::new();
-        sha256.init().unwrap();
-        sha256.update_msg(&nonce.rand).unwrap();
-        sha256.update_slice(&quote.as_slice()).unwrap();
-        sha256.update_msg(&expiration_check_date).unwrap();
-        sha256.update_msg(&collateral_exp_status).unwrap();
+        let sha256 = sgx_crypto::sha::Sha256::new().unwrap();
+        sha256.update(&nonce.rand).unwrap();
+        sha256.update(&quote.as_slice()).unwrap();
+        sha256.update(&expiration_check_date).unwrap();
+        sha256.update(&collateral_exp_status).unwrap();
         sha256
-            .update_msg(&(quote_verification_result as u32))
+            .update(&(quote_verification_result as u32))
             .unwrap();
+        let sha256_hash = sha256.finalize().unwrap();
 
         // This check isn't quote necessary if we are verifying the nonce in
         // an untrusted environment
-        if sha256.get_hash().unwrap() != qve_report_info.qe_report.body.report_data.d[..32]
+        if sha256_hash != qve_report_info.qe_report.body.report_data.d[..32]
             || [0u8; 32] != qve_report_info.qe_report.body.report_data.d[32..]
         {
             // Something wrong with out SW stack, probably compromised
