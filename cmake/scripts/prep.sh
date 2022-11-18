@@ -67,22 +67,22 @@ function build_edl() {
     cd ${TEACLAVE_OUT_DIR}
     for edl in ${TEACLAVE_EDL_DIR}/*.edl
     do
+        fname=$(basename "$edl" .edl)
+
         # $FILE_NAME.edl to $FILE_NAME_t.c
         ${SGX_EDGER8R} --trusted ${edl} --search-path ${SGX_SDK}/include \
             --search-path ${RUST_SGX_SDK}/sgx_edl/edl --search-path ${TEACLAVE_PROJECT_ROOT}/edl \
-            --trusted-dir ${TEACLAVE_OUT_DIR}
-
+            --trusted-dir ${TEACLAVE_OUT_DIR} && \
+        #
         # $FILE_NAME.edl to $FILE_NAME_u.c
         ${SGX_EDGER8R} --untrusted ${edl} --search-path ${SGX_SDK}/include \
             --search-path ${RUST_SGX_SDK}/sgx_edl/edl --search-path ${TEACLAVE_PROJECT_ROOT}/edl \
-            --untrusted-dir ${TEACLAVE_OUT_DIR}
-
-        fname=$(basename "$edl" .edl)
-
+            --untrusted-dir ${TEACLAVE_OUT_DIR} && \
+        #
         # $FILE_NAME_u.c -> lib$FILE_NAME_u.o -> lib$FILE_NAME_u.a
         ${CMAKE_C_COMPILER} ${SGX_UNTRUSTED_CFLAGS} -c "${fname}_u.c" -o "lib${fname}_u.o"
-        ${CMAKE_AR} rcsD "lib${fname}_u.a" "lib${fname}_u.o"
-
+        ${CMAKE_AR} rcsD "lib${fname}_u.a" "lib${fname}_u.o" && \
+        #
         # $FILE_NAME_t.c to $FILE_NAME_t.o
         ${CMAKE_C_COMPILER} ${SGX_TRUSTED_CFLAGS} -c "${fname}_t.c" -o "lib${fname}_t.o"
     done
@@ -100,3 +100,4 @@ do
         break
     fi
 done
+wait

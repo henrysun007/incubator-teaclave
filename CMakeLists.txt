@@ -267,8 +267,9 @@ add_custom_target(
       ${CARGO_BUILD_FLAGS} --features backtrace,net,thread -Zbuild-std=core,alloc
       ${MTEE_EXTRA_CARGO_FLAGS} --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
     COMMAND
-      mkdir -p ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}
-      mv ${TRUSTED_TARGET_DIR}/default_std/${SGX_LIB_TARGET}/${TARGET}/deps
+      mkdir -p ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib
+    COMMAND
+      cp -r ${TRUSTED_TARGET_DIR}/default_std/${SGX_LIB_TARGET}/${TARGET}/deps/*
       ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib
     DEPENDS prep
     COMMENT "Building default std"
@@ -304,7 +305,7 @@ add_cargo_build_dylib_staticlib_target(teaclave_client_sdk
   TARGET_NAME "teaclave_client_sdk"
   TOML_DIR ${MT_UNIX_TOML_DIR}
   TARGET_DIR ${UNIX_TARGET_DIR}
-  DEPENDS prep )
+  DEPENDS prep)
 
 # example/quickstart_c link_directories(${TEACLAVE_LIB_INSTALL_DIR})
 # add_executable(quickstart_c
