@@ -18,7 +18,6 @@
 use crate::error::AuthenticationError;
 use crate::user_db::DbClient;
 use crate::user_info::UserInfo;
-use std::prelude::v1::*;
 use teaclave_proto::teaclave_authentication_service::{
     TeaclaveAuthenticationInternal, UserAuthenticateRequest, UserAuthenticateResponse,
 };

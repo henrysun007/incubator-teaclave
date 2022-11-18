@@ -1,6 +1,4 @@
 //! An in-memory implementation of Env.
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
 
 use crate::env::{path_to_str, path_to_string, Env, FileLock, Logger, RandomAccess};
 use crate::env_common::micros;

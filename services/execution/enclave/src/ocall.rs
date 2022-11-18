@@ -18,7 +18,6 @@
 use anyhow::ensure;
 use anyhow::Result;
 use sgx_types::sgx_status_t;
-use std::prelude::v1::*;
 use teaclave_types::FileAgentRequest;
 
 extern "C" {

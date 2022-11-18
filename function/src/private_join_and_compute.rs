@@ -21,8 +21,6 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::format;
 use std::io::Write;
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
 use teaclave_types::{FunctionArguments, FunctionRuntime};
 
 const IN_DATA: &str = "input_data";

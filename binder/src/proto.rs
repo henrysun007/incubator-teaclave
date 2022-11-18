@@ -17,7 +17,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::convert::From;
-use std::prelude::v1::*;
 
 pub enum ECallCommand {
     StartService,

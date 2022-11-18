@@ -25,7 +25,6 @@ extern crate log;
 use anyhow::{anyhow, Result};
 
 use rand::RngCore;
-use std::prelude::v1::*;
 use std::sync::{Arc, SgxRwLock as RwLock};
 use std::thread;
 

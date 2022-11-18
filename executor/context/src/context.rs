@@ -16,8 +16,6 @@
 // under the License.
 
 #[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use std::cell::RefCell;
 use std::slice;
 use std::thread_local;

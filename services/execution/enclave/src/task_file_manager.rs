@@ -20,7 +20,6 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
-use std::prelude::v1::*;
 use std::untrusted::path::PathEx;
 use teaclave_crypto::TeaclaveFile128Key;
 use teaclave_types::*;

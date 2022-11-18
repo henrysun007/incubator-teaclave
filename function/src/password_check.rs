@@ -16,7 +16,6 @@
 // under the License.
 
 use std::io::prelude::*;
-use std::prelude::v1::*;
 
 use std::collections::HashSet;
 use std::convert::TryFrom;

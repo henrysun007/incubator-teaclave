@@ -17,7 +17,6 @@
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::prelude::v1::*;
 use std::sync::mpsc;
 use std::sync::{Arc, SgxMutex as Mutex};
 use std::thread;

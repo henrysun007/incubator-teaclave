@@ -18,7 +18,6 @@
 use protected_fs::{remove_protected_file, ProtectedFile};
 use rand::prelude::RngCore;
 use std::io::{Read, Write};
-use std::prelude::v1::*;
 
 pub fn read_write_large_file() {
     const BLOCK_SIZE: usize = 2048;

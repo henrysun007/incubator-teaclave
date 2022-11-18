@@ -17,9 +17,6 @@
 
 //! Filesystem manipulation operations.
 
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use crate::deps::sgx_aes_gcm_128bit_tag_t;
 use crate::deps::sgx_key_128bit_t;
 use crate::sgx_fs_inner as fs_imp;

@@ -20,8 +20,6 @@
 #[macro_use]
 extern crate sgx_tstd as std;
 
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
 use std::sync::{Arc, SgxMutex as Mutex};
 
 #[macro_use]

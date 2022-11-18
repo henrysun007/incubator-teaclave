@@ -18,7 +18,6 @@
 use crate::error::ManagementServiceError;
 use anyhow::anyhow;
 use std::convert::TryInto;
-use std::prelude::v1::*;
 use std::sync::{Arc, SgxMutex as Mutex};
 use teaclave_proto::teaclave_frontend_service::{
     ApproveTaskRequest, ApproveTaskResponse, AssignDataRequest, AssignDataResponse,

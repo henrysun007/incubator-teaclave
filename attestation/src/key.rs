@@ -19,8 +19,6 @@
 //! can export private key to a DER format or create a certificate with
 //! extension for TLS-based remote attestation.
 
-use std::prelude::v1::*;
-
 use anyhow::Result;
 use sgx_tcrypto::SgxEccHandle;
 use sgx_types::{sgx_ec256_private_t, sgx_ec256_public_t};

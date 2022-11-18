@@ -20,7 +20,6 @@ use cfg_if::cfg_if;
 use std::collections::HashSet;
 use std::ffi::CString;
 use std::os::raw::c_char;
-use std::prelude::v1::*;
 use std::sync::Arc;
 cfg_if! {
     if #[cfg(feature = "mesalock_sgx")]  {

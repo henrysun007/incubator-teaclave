@@ -26,7 +26,6 @@
 #[macro_use]
 extern crate sgx_tstd as std;
 
-use std::prelude::v1::*;
 use std::sync::Arc;
 
 use anyhow::{Context, Result};

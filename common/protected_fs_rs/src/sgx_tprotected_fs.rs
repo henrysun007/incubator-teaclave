@@ -16,9 +16,6 @@
 // under the License.
 #![allow(non_camel_case_types)]
 
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use crate::deps::c_void;
 use crate::deps::cmp;
 use crate::deps::errno;

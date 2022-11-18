@@ -20,9 +20,6 @@
 #[macro_use]
 extern crate sgx_tstd as std;
 
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 mod attestation;
 mod crypto;
 mod error;

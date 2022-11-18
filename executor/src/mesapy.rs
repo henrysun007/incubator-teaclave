@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::prelude::v1::*;
-
 use teaclave_executor_context::context::reset_thread_context;
 use teaclave_executor_context::context::set_thread_context;
 use teaclave_executor_context::context::Context;

@@ -19,7 +19,6 @@ use anyhow::Result;
 use rustls::internal::pemfile;
 use serde::{Deserialize, Serialize};
 use std::io;
-use std::prelude::v1::*;
 use std::untrusted::fs;
 use teaclave_rpc::channel::*;
 use teaclave_rpc::config::*;

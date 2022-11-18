@@ -1,6 +1,3 @@
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use std::convert::From;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
@@ -119,7 +116,6 @@ impl From<snap::Error> for Status {
 #[cfg(feature = "enclave_unit_test")]
 pub mod tests {
     use super::{Status, StatusCode};
-    use std::prelude::v1::*;
     use teaclave_test_utils::*;
 
     pub fn run_tests() -> bool {

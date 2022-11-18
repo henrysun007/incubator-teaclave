@@ -18,7 +18,6 @@
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 use std::iter;
-use std::prelude::v1::*;
 use std::string::String;
 use std::time::Instant;
 #[cfg(feature = "mesalock_sgx")]

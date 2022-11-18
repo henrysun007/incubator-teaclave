@@ -20,8 +20,6 @@
 #![allow(clippy::unused_unit)]
 #![allow(clippy::needless_lifetimes)]
 
-use std::prelude::v1::*;
-
 use yasna::ASN1Result;
 use yasna::{BERReader, BERReaderSeq, BERReaderSet};
 use yasna::{DERWriter, DERWriterSeq, DERWriterSet};

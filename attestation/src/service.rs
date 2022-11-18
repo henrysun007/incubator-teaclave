@@ -26,7 +26,6 @@ use crate::EndorsedAttestationReport;
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::prelude::v1::*;
 use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Result};

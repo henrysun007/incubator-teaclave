@@ -24,7 +24,6 @@ extern crate log;
 
 use std::cell::RefCell;
 use std::format;
-use std::prelude::v1::*;
 use std::sync::mpsc::channel;
 use std::thread;
 

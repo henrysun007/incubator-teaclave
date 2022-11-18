@@ -19,7 +19,6 @@ use crate::error::SchedulerServiceError;
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::convert::TryInto;
-use std::prelude::v1::*;
 use std::sync::{Arc, SgxMutex as Mutex};
 use std::time::{Duration, SystemTime};
 use std::untrusted::time::SystemTimeEx;

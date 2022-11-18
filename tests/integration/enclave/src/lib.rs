@@ -23,8 +23,6 @@ extern crate sgx_tstd as std;
 #[macro_use]
 extern crate log;
 
-use std::prelude::v1::*;
-
 use teaclave_binder::proto::{
     ECallCommand, FinalizeEnclaveInput, FinalizeEnclaveOutput, InitEnclaveInput, InitEnclaveOutput,
     RunTestInput, RunTestOutput,

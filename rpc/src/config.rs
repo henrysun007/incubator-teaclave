@@ -17,8 +17,6 @@
 
 use anyhow::{anyhow, bail, Result};
 use log::debug;
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
 #[cfg(not(feature = "mesalock_sgx"))]
 use std::sync::RwLock;
 #[cfg(feature = "mesalock_sgx")]

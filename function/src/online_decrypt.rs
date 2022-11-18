@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
 extern crate base64;
 use anyhow::{anyhow, bail, Result};
 use ring::aead::*;

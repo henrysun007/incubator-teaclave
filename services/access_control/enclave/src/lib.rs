@@ -24,7 +24,6 @@ extern crate sgx_tstd as std;
 extern crate log;
 use anyhow::{anyhow, Result};
 
-use std::prelude::v1::*;
 use teaclave_attestation::{verifier, AttestationConfig, RemoteAttestation};
 use teaclave_binder::proto::{
     ECallCommand, FinalizeEnclaveInput, FinalizeEnclaveOutput, InitEnclaveInput, InitEnclaveOutput,

@@ -19,8 +19,6 @@
 #![allow(clippy::unknown_clippy_lints)]
 
 use std::fmt;
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

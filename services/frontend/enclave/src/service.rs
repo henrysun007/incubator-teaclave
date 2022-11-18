@@ -21,7 +21,6 @@ use crate::error::FrontendServiceError;
 use anyhow::anyhow;
 use anyhow::ensure;
 use anyhow::Result;
-use std::prelude::v1::*;
 use std::sync::{Arc, SgxMutex as Mutex};
 
 use teaclave_proto::teaclave_authentication_service::{

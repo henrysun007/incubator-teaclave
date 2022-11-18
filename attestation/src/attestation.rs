@@ -17,8 +17,6 @@
 
 //! This module provide attestation public APIs in server side.
 
-use std::prelude::v1::*;
-
 use crate::key;
 use crate::AttestationConfig;
 use crate::AttestedTlsConfig;

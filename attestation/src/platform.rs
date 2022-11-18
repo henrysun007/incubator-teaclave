@@ -18,8 +18,6 @@
 //! This module provides SGX platform related functions like getting local
 //! report and transform into a remotely verifiable quote.
 
-use std::prelude::v1::*;
-
 use log::debug;
 use sgx_rand::{os::SgxRng, Rng};
 use sgx_tcrypto::rsgx_sha256_slice;

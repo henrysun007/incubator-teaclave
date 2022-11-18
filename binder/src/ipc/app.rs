@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::prelude::v1::*;
-
 use serde::{Deserialize, Serialize};
 
 use sgx_types::{sgx_enclave_id_t, sgx_status_t};

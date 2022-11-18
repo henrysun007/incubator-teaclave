@@ -1,6 +1,3 @@
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use crate::error::{err, Result, StatusCode};
 use crate::key_types::InternalKey;
 use crate::types::{FileMetaData, FileNum, SequenceNumber};

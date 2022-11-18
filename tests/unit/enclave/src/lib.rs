@@ -19,8 +19,6 @@
 #[cfg(feature = "mesalock_sgx")]
 extern crate sgx_tstd as std;
 
-use std::prelude::v1::*;
-
 use teaclave_binder::proto::{
     ECallCommand, FinalizeEnclaveInput, FinalizeEnclaveOutput, InitEnclaveInput, InitEnclaveOutput,
     RunTestInput, RunTestOutput,

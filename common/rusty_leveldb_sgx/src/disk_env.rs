@@ -1,6 +1,3 @@
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use crate::env::{path_to_str, Env, FileLock, Logger, RandomAccess};
 use crate::env_common::micros;
 use crate::error::{err, Result, Status, StatusCode};

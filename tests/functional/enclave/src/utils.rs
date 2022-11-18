@@ -18,7 +18,6 @@
 use anyhow::Result;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-use std::prelude::v1::*;
 use teaclave_attestation::verifier;
 use teaclave_config::build::AS_ROOT_CA_CERT;
 use teaclave_config::RuntimeConfig;

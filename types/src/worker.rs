@@ -20,7 +20,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::convert::TryInto;
 use std::io;
-use std::prelude::v1::*;
 
 pub trait TeaclaveRuntime {
     fn open_input(&self, identifier: &str) -> anyhow::Result<Box<dyn io::Read>>;

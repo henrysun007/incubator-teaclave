@@ -15,9 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#[cfg(feature = "mesalock_sgx")]
-use std::prelude::v1::*;
-
 use std::ffi::{CStr, CString};
 use std::io::{self, Error, SeekFrom};
 use std::path::Path;
