@@ -52,6 +52,9 @@ sgx_trts   = { path = "../../../third_party/rust-sgx-sdk/sgx_trts" }
 sgx_urts   = { path = "../../../third_party/rust-sgx-sdk/sgx_urts" }
 
 # SGX crates
-ring       = { git = "https://github.com/sccommunity/ring", branch = "teaclave-sgx" }
+env_logger = { git = "https://github.com/mesatee/env_logger.git", branch = "teaclave-sgx" }
+ring       = { git = "https://github.com/mesatee/ring.git", branch = "teaclave-sgx" }
 rustface   = { git = "https://github.com/mesatee/rustface" }
+rustls     = { git = "https://github.com/mesatee/rustls.git", branch = "teaclave-sgx" }
 yasna      = { git = "https://github.com/sccommunity/yasna.rs.git", branch = "teaclave-sgx" }
+num_cpus   = { git = "https://github.com/mesatee/num_cpus.git", branch = "teaclave-sgx" }

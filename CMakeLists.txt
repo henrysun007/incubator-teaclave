@@ -193,7 +193,7 @@ if(USE_PREBUILT_MESAPY)
 add_custom_command(
   OUTPUT ${MESAPY_OUTPUTS}
   COMMAND
-    wget -qN https://github.com/mesatee/mesapy/releases/download/${MESAPY_VERSION}/mesapy-${MESAPY_VERSION}.tar.gz &&
+    https_proxy=http://agent.baidu.com:8118 wget -qN https://github.com/mesatee/mesapy/releases/download/${MESAPY_VERSION}/mesapy-${MESAPY_VERSION}.tar.gz &&
     tar xzf mesapy-${MESAPY_VERSION}.tar.gz
   DEPENDS prep
   WORKING_DIRECTORY ${TEACLAVE_OUT_DIR})
@@ -259,18 +259,20 @@ endif()
 target_compile_options(pycomponent PUBLIC -UWITH_THREAD -O2 -fPIC -Wimplicit
                                           -I/usr/lib/pypy/include)
 
+set(DEFAULT_STD_PATH ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib)
+
 add_custom_target(
     default_std
     COMMAND
       ${CMAKE_COMMAND} -E env ${TEACLAVE_COMMON_ENVS} RUSTFLAGS=${RUSTFLAGS}
       ${MT_SCRIPT_DIR}/cargo_build_ex.sh --target-dir ${TRUSTED_TARGET_DIR}/default_std
-      ${CARGO_BUILD_FLAGS} --features backtrace,net,thread -Zbuild-std=core,alloc
+      ${CARGO_BUILD_FLAGS} --features backtrace,net,thread,unsupported_process -Zbuild-std=core,alloc
       ${MTEE_EXTRA_CARGO_FLAGS} --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
     COMMAND
-      mkdir -p ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib
+    rm -rf ${DEFAULT_STD_PATH} && mkdir -p ${DEFAULT_STD_PATH}
     COMMAND
       cp -r ${TRUSTED_TARGET_DIR}/default_std/${SGX_LIB_TARGET}/${TARGET}/deps/*
-      ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib
+      ${DEFAULT_STD_PATH}
     DEPENDS prep
     COMMENT "Building default std"
     WORKING_DIRECTORY ${RUST_SGX_SDK}/rustlib/std
