@@ -19,13 +19,13 @@
 use crate::deps::c_void;
 use crate::deps::cmp;
 use crate::deps::errno;
-use crate::deps::sgx_aes_gcm_128bit_tag_t;
-use crate::deps::sgx_key_128bit_t;
+use crate::deps::Mac128bit;
+use crate::deps::Key128bit;
 use crate::deps::size_t;
 use crate::deps::CStr;
 use crate::deps::{c_char, c_int};
 use crate::deps::{int32_t, int64_t};
-use crate::deps::{SysError, SysResult};
+use crate::deps::{OsError, OsResult};
 
 pub type SGX_FILE = *mut c_void;
 
@@ -36,7 +36,7 @@ extern "C" {
     pub fn sgx_fopen(
         filename: *const c_char,
         mode: *const c_char,
-        key: *const sgx_key_128bit_t,
+        key: *const Key128bit,
     ) -> SGX_FILE;
 
     pub fn sgx_fopen_auto_key(filename: *const c_char, mode: *const c_char) -> SGX_FILE;
@@ -62,16 +62,16 @@ extern "C" {
     pub fn sgx_remove(filename: *const c_char) -> int32_t;
 
     #[cfg(feature = "mesalock_sgx")]
-    pub fn sgx_fexport_auto_key(filename: *const c_char, key: *mut sgx_key_128bit_t) -> int32_t;
+    pub fn sgx_fexport_auto_key(filename: *const c_char, key: *mut Key128bit) -> int32_t;
 
     #[cfg(feature = "mesalock_sgx")]
-    pub fn sgx_fimport_auto_key(filename: *const c_char, key: *const sgx_key_128bit_t) -> int32_t;
+    pub fn sgx_fimport_auto_key(filename: *const c_char, key: *const Key128bit) -> int32_t;
 
     pub fn sgx_fclear_cache(stream: SGX_FILE) -> int32_t;
 
     pub fn sgx_get_current_meta_gmac(
         stream: SGX_FILE,
-        out_gmac: *mut sgx_aes_gcm_128bit_tag_t,
+        out_gmac: *mut Mac128bit,
     ) -> int32_t;
 
     pub fn sgx_rename_meta(stream: SGX_FILE, old: *const c_char, new: *const c_char) -> int32_t;
@@ -81,11 +81,11 @@ fn max_len() -> usize {
     u32::max_value() as usize
 }
 
-unsafe fn rsgx_fopen(filename: &CStr, mode: &CStr, key: &sgx_key_128bit_t) -> SysResult<SGX_FILE> {
+unsafe fn rsgx_fopen(filename: &CStr, mode: &CStr, key: &Key128bit) -> OsResult<SGX_FILE> {
     let file = sgx_fopen(
         filename.as_ptr(),
         mode.as_ptr(),
-        key as *const sgx_key_128bit_t,
+        key as *const Key128bit,
     );
     if file.is_null() {
         Err(errno())
@@ -94,7 +94,7 @@ unsafe fn rsgx_fopen(filename: &CStr, mode: &CStr, key: &sgx_key_128bit_t) -> Sy
     }
 }
 
-unsafe fn rsgx_fopen_auto_key(filename: &CStr, mode: &CStr) -> SysResult<SGX_FILE> {
+unsafe fn rsgx_fopen_auto_key(filename: &CStr, mode: &CStr) -> OsResult<SGX_FILE> {
     let file = sgx_fopen_auto_key(filename.as_ptr(), mode.as_ptr());
     if file.is_null() {
         Err(errno())
@@ -103,7 +103,7 @@ unsafe fn rsgx_fopen_auto_key(filename: &CStr, mode: &CStr) -> SysResult<SGX_FIL
     }
 }
 
-unsafe fn rsgx_fwrite(stream: SGX_FILE, buf: &[u8]) -> SysResult<usize> {
+unsafe fn rsgx_fwrite(stream: SGX_FILE, buf: &[u8]) -> OsResult<usize> {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -117,7 +117,7 @@ unsafe fn rsgx_fwrite(stream: SGX_FILE, buf: &[u8]) -> SysResult<usize> {
     }
 }
 
-unsafe fn rsgx_fread(stream: SGX_FILE, buf: &mut [u8]) -> SysResult<usize> {
+unsafe fn rsgx_fread(stream: SGX_FILE, buf: &mut [u8]) -> OsResult<usize> {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -137,7 +137,7 @@ unsafe fn rsgx_fread(stream: SGX_FILE, buf: &mut [u8]) -> SysResult<usize> {
     }
 }
 
-unsafe fn rsgx_ftell(stream: SGX_FILE) -> SysResult<i64> {
+unsafe fn rsgx_ftell(stream: SGX_FILE) -> OsResult<i64> {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -150,7 +150,7 @@ unsafe fn rsgx_ftell(stream: SGX_FILE) -> SysResult<i64> {
     }
 }
 
-unsafe fn rsgx_fseek(stream: SGX_FILE, offset: i64, origin: i32) -> SysError {
+unsafe fn rsgx_fseek(stream: SGX_FILE, offset: i64, origin: i32) -> OsError {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -163,7 +163,7 @@ unsafe fn rsgx_fseek(stream: SGX_FILE, offset: i64, origin: i32) -> SysError {
     }
 }
 
-unsafe fn rsgx_fflush(stream: SGX_FILE) -> SysError {
+unsafe fn rsgx_fflush(stream: SGX_FILE) -> OsError {
     let ret = sgx_fflush(stream);
     if ret == 0 {
         Ok(())
@@ -182,7 +182,7 @@ unsafe fn rsgx_ferror(stream: SGX_FILE) -> i32 {
     err
 }
 
-unsafe fn rsgx_feof(stream: SGX_FILE) -> SysResult<bool> {
+unsafe fn rsgx_feof(stream: SGX_FILE) -> OsResult<bool> {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -198,7 +198,7 @@ unsafe fn rsgx_clearerr(stream: SGX_FILE) {
     sgx_clearerr(stream)
 }
 
-unsafe fn rsgx_fclose(stream: SGX_FILE) -> SysError {
+unsafe fn rsgx_fclose(stream: SGX_FILE) -> OsError {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -211,7 +211,7 @@ unsafe fn rsgx_fclose(stream: SGX_FILE) -> SysError {
     }
 }
 
-unsafe fn rsgx_fclear_cache(stream: SGX_FILE) -> SysError {
+unsafe fn rsgx_fclear_cache(stream: SGX_FILE) -> OsError {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -226,13 +226,13 @@ unsafe fn rsgx_fclear_cache(stream: SGX_FILE) -> SysError {
 
 unsafe fn rsgx_get_current_meta_gmac(
     stream: SGX_FILE,
-    out_gmac: &mut sgx_aes_gcm_128bit_tag_t,
-) -> SysError {
+    out_gmac: &mut Mac128bit,
+) -> OsError {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
 
-    let ret = sgx_get_current_meta_gmac(stream, out_gmac as *mut sgx_aes_gcm_128bit_tag_t);
+    let ret = sgx_get_current_meta_gmac(stream, out_gmac as *mut Mac128bit);
     if ret == 0 {
         Ok(())
     } else {
@@ -240,7 +240,7 @@ unsafe fn rsgx_get_current_meta_gmac(
     }
 }
 
-unsafe fn rsgx_rename_meta(stream: SGX_FILE, old: &CStr, new: &CStr) -> SysError {
+unsafe fn rsgx_rename_meta(stream: SGX_FILE, old: &CStr, new: &CStr) -> OsError {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }
@@ -252,7 +252,7 @@ unsafe fn rsgx_rename_meta(stream: SGX_FILE, old: &CStr, new: &CStr) -> SysError
     }
 }
 
-unsafe fn rsgx_remove(filename: &CStr) -> SysError {
+unsafe fn rsgx_remove(filename: &CStr) -> OsError {
     let ret = sgx_remove(filename.as_ptr());
     if ret == 0 {
         Ok(())
@@ -262,8 +262,8 @@ unsafe fn rsgx_remove(filename: &CStr) -> SysError {
 }
 
 #[cfg(feature = "mesalock_sgx")]
-unsafe fn rsgx_fexport_auto_key(filename: &CStr, key: &mut sgx_key_128bit_t) -> SysError {
-    let ret = sgx_fexport_auto_key(filename.as_ptr(), key as *mut sgx_key_128bit_t);
+unsafe fn rsgx_fexport_auto_key(filename: &CStr, key: &mut Key128bit) -> OsError {
+    let ret = sgx_fexport_auto_key(filename.as_ptr(), key as *mut Key128bit);
     if ret == 0 {
         Ok(())
     } else {
@@ -272,8 +272,8 @@ unsafe fn rsgx_fexport_auto_key(filename: &CStr, key: &mut sgx_key_128bit_t) -> 
 }
 
 #[cfg(feature = "mesalock_sgx")]
-unsafe fn rsgx_fimport_auto_key(filename: &CStr, key: &sgx_key_128bit_t) -> SysError {
-    let ret = sgx_fimport_auto_key(filename.as_ptr(), key as *const sgx_key_128bit_t);
+unsafe fn rsgx_fimport_auto_key(filename: &CStr, key: &Key128bit) -> OsError {
+    let ret = sgx_fimport_auto_key(filename.as_ptr(), key as *const Key128bit);
     if ret == 0 {
         Ok(())
     } else {
@@ -322,7 +322,7 @@ impl SgxFileStream {
     /// If the function succeeds, it returns a valid file pointer, which can be used by all the other functions
     /// in the Protected FS API, otherwise, error code is returned.
     ///
-    pub fn open(filename: &CStr, mode: &CStr, key: &sgx_key_128bit_t) -> SysResult<SgxFileStream> {
+    pub fn open(filename: &CStr, mode: &CStr, key: &Key128bit) -> OsResult<SgxFileStream> {
         unsafe { rsgx_fopen(filename, mode, key).map(|f| SgxFileStream { stream: f }) }
     }
 
@@ -356,7 +356,7 @@ impl SgxFileStream {
     /// If the function succeeds, it returns a valid file pointer, which can be used by all the other functions
     /// in the Protected FS API, otherwise, error code is returned.
     ///
-    pub fn open_auto_key(filename: &CStr, mode: &CStr) -> SysResult<SgxFileStream> {
+    pub fn open_auto_key(filename: &CStr, mode: &CStr) -> OsResult<SgxFileStream> {
         unsafe { rsgx_fopen_auto_key(filename, mode).map(|f| SgxFileStream { stream: f }) }
     }
 
@@ -384,7 +384,7 @@ impl SgxFileStream {
     /// If the function succeeds, the number of bytes read is returned (zero indicates end of file).
     /// otherwise, error code is returned.
     ///
-    pub fn read(&self, buf: &mut [u8]) -> SysResult<usize> {
+    pub fn read(&self, buf: &mut [u8]) -> OsResult<usize> {
         unsafe { rsgx_fread(self.stream, buf) }
     }
 
@@ -412,7 +412,7 @@ impl SgxFileStream {
     /// If the function succeeds, the number of bytes written is returned (zero indicates nothing was written).
     /// otherwise, error code is returned.
     ///
-    pub fn write(&self, buf: &[u8]) -> SysResult<usize> {
+    pub fn write(&self, buf: &[u8]) -> OsResult<usize> {
         unsafe { rsgx_fwrite(self.stream, buf) }
     }
 
@@ -434,7 +434,7 @@ impl SgxFileStream {
     /// If the function succeeds, it returns the current value of the position indicator of the file.
     /// otherwise, error code is returned.
     ///
-    pub fn tell(&self) -> SysResult<i64> {
+    pub fn tell(&self) -> OsResult<i64> {
         unsafe { rsgx_ftell(self.stream) }
     }
 
@@ -465,7 +465,7 @@ impl SgxFileStream {
     ///
     /// If the function failed, error code is returned.
     ///
-    pub fn seek(&self, offset: i64, origin: SeekFrom) -> SysError {
+    pub fn seek(&self, offset: i64, origin: SeekFrom) -> OsError {
         let whence = match origin {
             SeekFrom::Start => libc::SEEK_SET,
             SeekFrom::End => libc::SEEK_END,
@@ -496,7 +496,7 @@ impl SgxFileStream {
     ///
     /// If the function failed, error code is returned.
     ///
-    pub fn flush(&self) -> SysError {
+    pub fn flush(&self) -> OsError {
         unsafe { rsgx_fflush(self.stream) }
     }
 
@@ -599,15 +599,15 @@ impl SgxFileStream {
     ///
     /// If the function failed, error code is returned.
     ///
-    pub fn clear_cache(&self) -> SysError {
+    pub fn clear_cache(&self) -> OsError {
         unsafe { rsgx_fclear_cache(self.stream) }
     }
 
-    pub fn get_current_meta_gmac(&self, meta_gmac: &mut sgx_aes_gcm_128bit_tag_t) -> SysError {
+    pub fn get_current_meta_gmac(&self, meta_gmac: &mut Mac128bit) -> OsError {
         unsafe { rsgx_get_current_meta_gmac(self.stream, meta_gmac) }
     }
 
-    pub fn rename_meta(&self, old_name: &CStr, new_name: &CStr) -> SysError {
+    pub fn rename_meta(&self, old_name: &CStr, new_name: &CStr) -> OsError {
         unsafe { rsgx_rename_meta(self.stream, old_name, new_name) }
     }
 }
@@ -635,7 +635,7 @@ impl SgxFileStream {
 ///
 /// If the function failed, error code is returned.
 ///
-pub fn remove(filename: &CStr) -> SysError {
+pub fn remove(filename: &CStr) -> OsError {
     unsafe { rsgx_remove(filename) }
 }
 
@@ -665,8 +665,8 @@ pub fn remove(filename: &CStr) -> SysError {
 /// otherwise, error code is returned.
 ///
 #[cfg(feature = "mesalock_sgx")]
-pub fn export_auto_key(filename: &CStr) -> SysResult<sgx_key_128bit_t> {
-    let mut key: sgx_key_128bit_t = Default::default();
+pub fn export_auto_key(filename: &CStr) -> OsResult<Key128bit> {
+    let mut key: Key128bit = Default::default();
     unsafe { rsgx_fexport_auto_key(filename, &mut key).map(|_| key) }
 }
 
@@ -701,7 +701,7 @@ pub fn export_auto_key(filename: &CStr) -> SysResult<sgx_key_128bit_t> {
 /// otherwise, error code is returned.
 ///
 #[cfg(feature = "mesalock_sgx")]
-pub fn import_auto_key(filename: &CStr, key: &sgx_key_128bit_t) -> SysError {
+pub fn import_auto_key(filename: &CStr, key: &Key128bit) -> OsError {
     unsafe { rsgx_fimport_auto_key(filename, key) }
 }
 

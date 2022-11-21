@@ -20,7 +20,7 @@ use std::cell::RefCell;
 use std::slice;
 use std::thread_local;
 
-use sgx_types::{c_char, c_int, c_uchar, c_uint, size_t};
+use sgx_types::types::{c_char, c_int, c_uchar, c_uint, size_t};
 
 use std::collections::HashMap;
 use std::format;

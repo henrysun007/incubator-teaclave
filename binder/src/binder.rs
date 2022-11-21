@@ -16,7 +16,8 @@
 // under the License.
 
 use sgx_types::*;
-use sgx_urts::SgxEnclave;
+use sgx_types::function::sgx_destroy_enclave;
+use sgx_urts::enclave::SgxEnclave;
 
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
@@ -42,7 +43,7 @@ impl TeeBinder {
         } else {
             create_sgx_enclave(&name, true)?
         };
-        debug!("EnclaveID: {}", enclave.geteid());
+        debug!("EnclaveID: {}", enclave.eid());
 
         let tee = TeeBinder { enclave };
 
@@ -59,7 +60,7 @@ impl TeeBinder {
         U: Serialize,
         V: for<'de> Deserialize<'de>,
     {
-        let mut channel = ECallChannel::new(self.enclave.geteid());
+        let mut channel = ECallChannel::new(self.enclave.eid());
         channel
             .invoke::<U, V>(command.into(), input)
             .map_err(TeeBinderError::IpcError)
@@ -78,12 +79,12 @@ impl TeeBinder {
     /// # Safety
     /// Force to destroy current enclave.
     pub unsafe fn destroy(&self) {
-        let _ = sgx_destroy_enclave(self.enclave.geteid());
+        let _ = sgx_destroy_enclave(self.enclave.eid());
     }
 
     #[cfg(feature = "app_unit_test")]
     pub fn run_app_tests(&self) -> bool {
-        crate::ipc::app::tests::run_tests(self.enclave.geteid())
+        crate::ipc::app::tests::run_tests(self.enclave.eid())
     }
 }
 
@@ -98,24 +99,10 @@ fn create_sgx_enclave(
     enclave_name: &str,
     debug_launch: bool,
 ) -> Result<SgxEnclave, TeeBinderError> {
-    let mut launch_token: sgx_launch_token_t = [0; 1024]; // launch_token is deprecated
-    let mut launch_token_updated: i32 = 0; // launch_token is deprecated
-
-    let mut misc_attr = sgx_misc_attribute_t {
-        secs_attr: sgx_attributes_t { flags: 0, xfrm: 0 },
-        misc_select: 0,
-    };
-
     let enclave_file = format!("{}{}", enclave_name, ENCLAVE_FILE_SUFFIX);
 
-    let enclave = SgxEnclave::create(
-        enclave_file,
-        debug_launch as i32,
-        &mut launch_token,         // launch_token is deprecated
-        &mut launch_token_updated, // launch_token is deprecated
-        &mut misc_attr,
-    )
-    .map_err(TeeBinderError::SgxError)?;
+    let enclave =
+        SgxEnclave::create(enclave_file, debug_launch).map_err(TeeBinderError::SgxError)?;
 
     Ok(enclave)
 }

@@ -20,8 +20,7 @@
 //! extension for TLS-based remote attestation.
 
 use anyhow::Result;
-use sgx_crypto::ecc::EcKeyPair;
-use sgx_types::{sgx_ec256_private_t, sgx_ec256_public_t};
+use sgx_crypto::ecc::{EcKeyPair, EcPublicKey};
 
 /// Validation days of cert for TLS connection.
 const CERT_VALID_DAYS: i64 = 90i64;
@@ -39,8 +38,8 @@ impl NistP256KeyPair {
         Ok(Self { inner })
     }
 
-    pub fn pub_k(&self) -> sgx_ec256_public_t {
-        self.inner.public_key();
+    pub fn pub_k(&self) -> EcPublicKey {
+        self.inner.public_key()
     }
 
     pub(crate) fn private_key_into_der(&self) -> Vec<u8> {
@@ -185,7 +184,7 @@ impl NistP256KeyPair {
     fn public_key_into_bytes(&self) -> Vec<u8> {
         // The first byte must be 4, which indicates the uncompressed encoding.
         let mut pub_key_bytes: Vec<u8> = vec![4];
-        let public_key = self.inner.public_key().public_key();
+        let public_key = self.pub_k().public_key();
         pub_key_bytes.extend(public_key.gx.iter().rev());
         pub_key_bytes.extend(public_key.gy.iter().rev());
         pub_key_bytes

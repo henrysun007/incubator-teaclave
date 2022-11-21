@@ -23,7 +23,7 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-pub type SgxStatus = sgx_types::sgx_status_t;
+pub use sgx_types::error::SgxStatus;
 
 pub const ES_OK: u32 = 0;
 pub const ES_ERR_GENERAL: u32 = 0x0000_0001;

@@ -35,7 +35,7 @@ use chrono::prelude::*;
 use rand::{RngCore, SeedableRng};
 use ring::signature;
 use rocket::{http, response};
-use sgx_types::*;
+use sgx_types::types::*;
 
 lazy_static! {
     static ref SIGNER: signature::RsaKeyPair = {
@@ -78,14 +78,14 @@ extern "C" {
     fn sgx_qv_verify_quote(
         p_quote: *const u8,
         quote_size: u32,
-        p_quote_collateral: *const sgx_ql_qve_collateral_t,
+        p_quote_collateral: *const CQlQveCollateral,
         expiration_check_date: time_t,
         p_collateral_expiration_status: *mut u32,
-        p_quote_verification_result: *mut sgx_ql_qv_result_t,
-        p_qve_report_info: *mut sgx_ql_qe_report_info_t,
+        p_quote_verification_result: *mut QlQvResult,
+        p_qve_report_info: *mut QlQeReportInfo,
         supplemental_data_size: u32,
         p_supplemental_data: *mut u8,
-    ) -> sgx_quote3_error_t;
+    ) -> Quote3Error;
 }
 
 enum QuoteVerificationResponse {
@@ -95,12 +95,12 @@ enum QuoteVerificationResponse {
 }
 
 struct QuoteVerificationResult {
-    pub quote_status: sgx_ql_qv_result_t,
+    pub quote_status: QlQvResult,
     pub isv_enclave_quote: String,
 }
 
 impl QuoteVerificationResponse {
-    fn accept(quote_status: sgx_ql_qv_result_t, isv_enclave_quote: String) -> Self {
+    fn accept(quote_status: QlQvResult, isv_enclave_quote: String) -> Self {
         Self::AcceptedRequest(QuoteVerificationResult {
             quote_status,
             isv_enclave_quote,
@@ -110,19 +110,11 @@ impl QuoteVerificationResponse {
 
 /// Convert SGX QL QV Result to str, try best to match the string defined in IAS
 /// quote status APIs.
-fn to_report(rst: sgx_ql_qv_result_t) -> &'static str {
-    use sgx_ql_qv_result_t::*;
+fn to_report(rst: QlQvResult) -> &'static str {
+    use QlQvResult::*;
     match rst {
-        SGX_QL_QV_RESULT_OK => "OK",
-        SGX_QL_QV_RESULT_CONFIG_NEEDED => "CONFIGURATION_NEEDED",
-        SGX_QL_QV_RESULT_OUT_OF_DATE => "OUT_OF_DATE",
-        SGX_QL_QV_RESULT_OUT_OF_DATE_CONFIG_NEEDED => "OUT_OF_DATE_CONFIGURATION_NEEDED",
-        SGX_QL_QV_RESULT_INVALID_SIGNATURE => "SIGNATURE_INVALID",
-        SGX_QL_QV_RESULT_REVOKED => "KEY_REVOKED",
-        SGX_QL_QV_RESULT_UNSPECIFIED => "UNSPECIFIED",
-        SGX_QL_QV_RESULT_SW_HARDENING_NEEDED => "SW_HARDENING_NEEDED",
-        SGX_QL_QV_RESULT_CONFIG_AND_SW_HARDENING_NEEDED => "CONFIGURATION_AND_SW_HARDENING_NEEDED",
-        _ => panic!(),
+        Max => panic!(),
+        _ => rst.as_str()
     }
 }
 
@@ -197,10 +189,10 @@ fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
             Err(_) => return QuoteVerificationResponse::BadRequest,
         };
         let mut collateral_exp_status = 1u32;
-        let mut quote_verification_result = sgx_ql_qv_result_t::SGX_QL_QV_RESULT_UNSPECIFIED;
-        let mut qve_report_info = sgx_ql_qe_report_info_t::default();
+        let mut quote_verification_result = QlQvResult::SGX_QL_QV_RESULT_UNSPECIFIED;
+        let mut qve_report_info = QlQeReportInfo::default();
 
-        let mut nonce = sgx_quote_nonce_t::default();
+        let mut nonce = QuoteNonce::default();
         let mut rng = rand::rngs::StdRng::from_entropy();
         rng.fill_bytes(&mut nonce.rand);
         qve_report_info.nonce = nonce;
@@ -223,7 +215,7 @@ fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
             }
         };
 
-        if ret != sgx_quote3_error_t::SGX_QL_SUCCESS {
+        if ret != Quote3Error::Success {
             eprintln!("sgx_qv_verify_quote failed: {:?}", ret);
             return QuoteVerificationResponse::BadRequest;
         };

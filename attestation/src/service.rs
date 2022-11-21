@@ -31,7 +31,8 @@ use std::sync::Arc;
 use anyhow::{anyhow, bail, Result};
 use log::{debug, trace};
 use serde_json::json;
-use sgx_types::*;
+use sgx_crypto::ecc::EcPublicKey;
+use sgx_types::types::QlAttKeyId;
 
 /// Root certification of the DCAP attestation service provider.
 #[cfg(dcap)]
@@ -72,13 +73,13 @@ pub(crate) enum AttestationServiceError {
 impl EndorsedAttestationReport {
     pub fn new(
         att_service_cfg: &AttestationServiceConfig,
-        pub_k: sgx_types::sgx_ec256_public_t,
+        pub_k: EcPublicKey,
     ) -> anyhow::Result<Self> {
         let (mut ak_id, qe_target_info) = platform::init_sgx_quote()?;
 
         // For IAS-based attestation, we need to fill our SPID (obtained from Intel)
         // into the attestation key id. For DCAP-based attestation, SPID should be 0
-        const SPID_OFFSET: usize = std::mem::size_of::<sgx_ql_att_key_id_t>();
+        const SPID_OFFSET: usize = std::mem::size_of::<QlAttKeyId>();
         ak_id.att_key_id[SPID_OFFSET..(SPID_OFFSET + att_service_cfg.spid.id.len())]
             .clone_from_slice(&att_service_cfg.spid.id);
 

@@ -19,8 +19,8 @@ use std::ffi::{CStr, CString};
 use std::io::{self, Error, SeekFrom};
 use std::path::Path;
 
-use crate::deps::sgx_aes_gcm_128bit_tag_t;
-use crate::deps::sgx_key_128bit_t;
+use crate::deps::Mac128bit;
+use crate::deps::Key128bit;
 
 use crate::sgx_tprotected_fs::{self, SgxFileStream};
 pub struct SgxFile(SgxFileStream);
@@ -83,10 +83,10 @@ impl SgxFile {
         let path = cstr(path)?;
         let mode = opts.get_access_mode()?;
         let opts = CString::new(mode.as_bytes())?;
-        SgxFile::open_c(&path, &opts, &sgx_key_128bit_t::default(), true)
+        SgxFile::open_c(&path, &opts, &Key128bit::default(), true)
     }
 
-    pub fn open_ex(path: &Path, opts: &OpenOptions, key: &sgx_key_128bit_t) -> io::Result<SgxFile> {
+    pub fn open_ex(path: &Path, opts: &OpenOptions, key: &Key128bit) -> io::Result<SgxFile> {
         let path = cstr(path)?;
         let mode = opts.get_access_mode()?;
         let opts = CString::new(mode.as_bytes())?;
@@ -96,7 +96,7 @@ impl SgxFile {
     pub fn open_c(
         path: &CStr,
         opts: &CStr,
-        key: &sgx_key_128bit_t,
+        key: &Key128bit,
         auto: bool,
     ) -> io::Result<SgxFile> {
         let file = if auto {
@@ -156,7 +156,7 @@ impl SgxFile {
 
     pub fn get_current_meta_gmac(
         &self,
-        meta_gmac: &mut sgx_aes_gcm_128bit_tag_t,
+        meta_gmac: &mut Mac128bit,
     ) -> io::Result<()> {
         self.0
             .get_current_meta_gmac(meta_gmac)
@@ -178,13 +178,13 @@ pub fn remove(path: &Path) -> io::Result<()> {
 }
 
 #[cfg(feature = "mesalock_sgx")]
-pub fn export_auto_key(path: &Path) -> io::Result<sgx_key_128bit_t> {
+pub fn export_auto_key(path: &Path) -> io::Result<Key128bit> {
     let path = cstr(path)?;
     sgx_tprotected_fs::export_auto_key(&path).map_err(Error::from_raw_os_error)
 }
 
 #[cfg(feature = "mesalock_sgx")]
-pub fn import_auto_key(path: &Path, key: &sgx_key_128bit_t) -> io::Result<()> {
+pub fn import_auto_key(path: &Path, key: &Key128bit) -> io::Result<()> {
     let path = cstr(path)?;
     sgx_tprotected_fs::import_auto_key(&path, key).map_err(Error::from_raw_os_error)
 }

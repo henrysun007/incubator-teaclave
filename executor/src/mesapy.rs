@@ -31,7 +31,7 @@ extern "C" {
     fn mesapy_exec(
         input: *const u8,
         argc: usize,
-        argv: *const *const sgx_types::c_char,
+        argv: *const *const sgx_types::types::c_char,
         output: *mut u8,
         buflen: u64,
     ) -> i64;
