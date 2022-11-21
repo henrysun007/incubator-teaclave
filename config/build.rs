@@ -41,11 +41,14 @@ fn main() {
         .current_dir(&unix_toml_dir)
         .args(&[
             "run",
+            "-Z",
+            "build-std",
+            "--target",
+            "x86_64-unknown-linux-gnu",
             "--target-dir",
             &target_dir.to_string_lossy(),
             "--manifest-path",
             "config/config_gen/Cargo.toml",
-            "--offline",
             "--",
             "-t",
             "config/build.config.toml",

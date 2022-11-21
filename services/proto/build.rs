@@ -73,14 +73,16 @@ fn main() {
     c.current_dir(&current_dir);
     c.args(&[
         "run",
+        "-Z",
+        "build-std",
+        "--target",
+        "x86_64-unknown-linux-gnu",
         "--target-dir",
         &target_dir.to_string_lossy(),
         "--manifest-path",
         "services/proto/proto_gen/Cargo.toml",
     ]);
-    if offline {
-        c.arg("--offline");
-    }
+
     c.args(&["--", "-i", "services/proto/src/proto", "-d", &out_dir, "-p"])
         .args(&proto_files);
     let output = c.output().expect("Generate proto failed");
