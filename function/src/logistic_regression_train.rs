@@ -71,14 +71,40 @@ impl LogisticRegressionTrain {
         let gd = GradientDesc::new(args.alg_alpha, args.alg_iters);
         let mut lr = LogisticRegressor::new(gd);
         lr.train(&data_matrix, &targets)?;
+        let model = Model::new(args.alg_alpha,args.alg_iters, lr.parameters().unwrap().data().to_owned());
 
-        let model_json = serde_json::to_string(&lr)?;
+        let model_json = serde_json::to_string(&model)?;
         let mut model_file = runtime.create_output(OUT_MODEL_FILE)?;
         model_file.write_all(model_json.as_bytes())?;
 
         Ok(format!("Trained {} lines of data.", data_size))
     }
 }
+
+// LogisticRegressor does not support serde, so we use this intermedia structure
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct Model {
+    // for GradientDesc
+    alpha: f64,
+    iters: usize,
+    // for BaseLogisticRegressor
+    parameters: Vec<f64>,
+}
+
+impl Model {
+    pub fn new(alpha: f64, iters: usize, parameters: Vec<f64>) -> Self {
+        Self {alpha,iters,parameters}
+    }
+
+    pub fn alg(&self) -> GradientDesc {
+        GradientDesc::new(self.alpha, self.iters)
+    }
+
+    pub fn parameters(&self) -> linalg::Vector<f64> {
+        linalg::Vector::from(self.parameters.as_slice())
+    }
+}
+
 
 fn parse_training_data(
     input: impl io::Read,

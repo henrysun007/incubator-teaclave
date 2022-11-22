@@ -17,7 +17,7 @@
 
 use anyhow::ensure;
 use anyhow::Result;
-use sgx_types::types::SgxStatus;
+use sgx_types::error::SgxStatus;
 use teaclave_types::FileAgentRequest;
 
 extern "C" {

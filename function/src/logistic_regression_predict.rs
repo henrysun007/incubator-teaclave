@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::logistic_regression_train::Model;
+
 use std::format;
 use std::io::{self, BufRead, BufReader, Write};
 
@@ -48,7 +50,12 @@ impl LogisticRegressionPredict {
         let mut f = runtime.open_input(MODEL_FILE)?;
         f.read_to_string(&mut model_json)?;
 
-        let lr: LogisticRegressor<GradientDesc> = serde_json::from_str(&model_json)?;
+        let model: Model = serde_json::from_str(&model_json)?;
+        let alg = model.alg();
+        let para = model.parameters();
+        let mut lr = LogisticRegressor::new(alg);
+        lr.set_parameters(para);
+
         let feature_size = lr
             .parameters()
             .ok_or_else(|| anyhow::anyhow!("Model parameter is None"))?

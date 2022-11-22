@@ -23,7 +23,6 @@ use std::io::{self, BufRead, BufReader, Write};
 use teaclave_types::{FunctionArguments, FunctionRuntime};
 
 extern crate hex;
-extern crate sgx_tstd as std;
 
 // Input data should be a list of sorted hash values.
 

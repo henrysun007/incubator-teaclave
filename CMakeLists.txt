@@ -266,7 +266,7 @@ add_custom_target(
     COMMAND
       ${CMAKE_COMMAND} -E env ${TEACLAVE_COMMON_ENVS} RUSTFLAGS=${RUSTFLAGS}
       ${MT_SCRIPT_DIR}/cargo_build_ex.sh --target-dir ${TRUSTED_TARGET_DIR}/default_std
-      ${CARGO_BUILD_FLAGS} --features backtrace,net,thread,unsupported_process -Zbuild-std=core,alloc
+      ${CARGO_BUILD_FLAGS} --features backtrace,net,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc
       ${MTEE_EXTRA_CARGO_FLAGS} --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
     COMMAND
     rm -rf ${DEFAULT_STD_PATH} && mkdir -p ${DEFAULT_STD_PATH}

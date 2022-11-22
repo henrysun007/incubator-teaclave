@@ -16,7 +16,6 @@
 // under the License.
 
 use anyhow::{anyhow, Result};
-use cfg_if::cfg_if;
 use std::collections::HashSet;
 use std::ffi::CString;
 use std::os::raw::c_char;
@@ -302,7 +301,8 @@ impl AccessControlModule {
     }
 }
 pub(crate) fn init_acs() -> Result<()> {
-    let ec = unsafe { acs_setup_model(CString::new(MODEL_TEXT).unwrap().as_ptr()) };
+    let model_conf = CString::new(MODEL_TEXT).unwrap(); 
+    let ec = unsafe { acs_setup_model(model_conf.as_ptr()) };
 
     if ec != 0 {
         Err(anyhow!("failed to init mesapy"))
