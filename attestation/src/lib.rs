@@ -22,6 +22,8 @@
 #![allow(clippy::nonstandard_macro_braces)]
 #![allow(clippy::unknown_clippy_lints)]
 
+extern crate sgx_types;
+
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
@@ -100,8 +102,6 @@ impl AttestationConfig {
         if cfg!(sgx_sim) {
             return Ok(Self::no_attestation());
         }
-
-        use core::convert::TryFrom;
 
         let mut spid = Spid::default();
         let hex = hex::decode(spid_str).context("Illegal SPID provided")?;

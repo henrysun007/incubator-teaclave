@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+extern crate sgx_types;
+
 use teaclave_binder::proto::{
     ECallCommand, FinalizeEnclaveInput, FinalizeEnclaveOutput, InitEnclaveInput, InitEnclaveOutput,
     RunTestInput, RunTestOutput,

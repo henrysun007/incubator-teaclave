@@ -10,7 +10,7 @@ use std::io::{self, Read, Write};
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
-use std::sync::{Arc, SgxMutex as Mutex};
+use std::sync::{Arc, Mutex};
 
 /// BufferBackedFile is a simple type implementing RandomAccess on a Vec<u8>.
 pub type BufferBackedFile = Vec<u8>;

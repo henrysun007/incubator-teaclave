@@ -20,14 +20,7 @@ use cfg_if::cfg_if;
 use std::collections::HashSet;
 use std::ffi::CString;
 use std::os::raw::c_char;
-use std::sync::Arc;
-cfg_if! {
-    if #[cfg(feature = "mesalock_sgx")]  {
-        use std::sync::SgxMutex as Mutex;
-    } else {
-        use std::sync::Mutex;
-    }
-}
+use std::sync::{Arc, Mutex};
 
 const MODEL_TEXT: &str = include_str!("../../model.conf");
 extern "C" {

@@ -16,7 +16,6 @@
 // under the License.
 
 use anyhow::Result;
-use rustls::internal::pemfile;
 use serde::{Deserialize, Serialize};
 use std::io;
 use std::untrusted::fs;
@@ -111,12 +110,12 @@ fn start_echo_service() {
     use std::thread;
     use std::time::Duration;
     thread::spawn(move || {
-        let cert = pemfile::certs(&mut io::BufReader::new(
+        let cert = rustls_pemfile::certs(&mut io::BufReader::new(
             fs::File::open(END_FULLCHAIN).unwrap(),
         ))
         .unwrap();
         let private_key =
-            &pemfile::pkcs8_private_keys(&mut io::BufReader::new(fs::File::open(END_KEY).unwrap()))
+            &rustls_pemfile::pkcs8_private_keys(&mut io::BufReader::new(fs::File::open(END_KEY).unwrap()))
                 .unwrap()[0];
         let addr = "127.0.0.1:12345".parse().unwrap();
         let config = SgxTrustedTlsServerConfig::new()

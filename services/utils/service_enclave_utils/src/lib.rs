@@ -19,7 +19,7 @@ use log::debug;
 use log::error;
 use std::backtrace;
 use std::path::PathBuf;
-use std::sync::{Arc, SgxRwLock as RwLock};
+use std::sync::{Arc, RwLock};
 #[cfg(feature = "mesalock_sgx")]
 use std::untrusted::path::PathEx;
 use teaclave_attestation::verifier::AttestationReportVerificationFn;
@@ -58,7 +58,7 @@ impl ServiceEnclave {
 
         debug!("Enclave initializing");
 
-        if backtrace::enable_backtrace(format!("{}.signed.so", name), backtrace::PrintFormat::Full)
+        if backtrace::enable_backtrace(backtrace::PrintFormat::Full)
             .is_err()
         {
             error!("Cannot enable backtrace");

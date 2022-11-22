@@ -17,6 +17,7 @@
 
 #[macro_use]
 extern crate log;
+extern crate sgx_types;
 use anyhow::{anyhow, Result};
 
 use teaclave_attestation::{verifier, AttestationConfig, RemoteAttestation};

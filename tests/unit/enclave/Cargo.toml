@@ -99,4 +99,5 @@ teaclave_service_enclave_utils = { path = "../../../services/utils/service_encla
 teaclave_types                 = { path = "../../../types" }
 teaclave_crypto                = { path = "../../../crypto" }
 
+[target.'cfg(not(target_vendor = "teaclave"))'.dependencies]
 sgx_types = { version = "2.0.0" }

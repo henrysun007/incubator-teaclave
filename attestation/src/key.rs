@@ -154,13 +154,14 @@ impl NistP256KeyPair {
         // There will be serious problems if this call fails. We might as well
         // panic in this case, thus unwrap()
         let sig = self
-            .key_pair
+            .inner
             .private_key()
             .sign(tbs_cert_der.as_slice())
             .unwrap();
 
         let sig_der = yasna::construct_der(|writer| {
             writer.write_sequence(|writer| {
+                let sig = sig.signature();
                 let mut sig_x = sig.x;
                 sig_x.reverse();
                 let mut sig_y = sig.y;

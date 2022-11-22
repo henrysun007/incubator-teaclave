@@ -17,6 +17,7 @@
 
 #[macro_use]
 extern crate log;
+extern crate sgx_types;
 
 use teaclave_binder::proto::{
     ECallCommand, FinalizeEnclaveInput, FinalizeEnclaveOutput, InitEnclaveInput, InitEnclaveOutput,

@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+extern crate sgx_types;
+
 use std::untrusted::path::PathEx;
 
 use anyhow::{anyhow, ensure, Result};

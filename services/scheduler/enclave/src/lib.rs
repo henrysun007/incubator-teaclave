@@ -15,10 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::sync::{Arc, SgxMutex as Mutex};
+use std::sync::{Arc, Mutex};
 
 #[macro_use]
 extern crate log;
+extern crate sgx_types;
 use anyhow::{anyhow, Result};
 
 use teaclave_attestation::{verifier, AttestationConfig, RemoteAttestation};

@@ -22,7 +22,7 @@ use crate::AttestationConfig;
 use crate::AttestedTlsConfig;
 use crate::EndorsedAttestationReport;
 
-use std::sync::{Arc, SgxRwLock as RwLock};
+use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::{Duration, SystemTime};
 use std::untrusted::time::SystemTimeEx;

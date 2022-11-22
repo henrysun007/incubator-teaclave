@@ -54,7 +54,6 @@ ENCLAVE_SECURITY_LINK_FLAGS="-Wl,-z,relro,-z,now,-z,noexecstack"
 
 ENCLAVE_LINK_FLAGS="${ENCLAVE_SECURITY_LINK_FLAGS} \
                    -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
-                   -Wl,--whole-archive -l${Trts_Library_Name} -Wl,--no-whole-archive \
                    -Wl,--start-group \
                    -l${Service_Library_Name} -lsgx_tprotected_fs -lsgx_tkey_exchange \
                    -lsgx_tstdc -lsgx_tcxx -lsgx_tservice -lsgx_tcrypto \

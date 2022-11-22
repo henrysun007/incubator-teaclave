@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+extern crate sgx_types;
+
 pub mod teaclave_access_control_service;
 pub mod teaclave_authentication_service;
 pub mod teaclave_common;

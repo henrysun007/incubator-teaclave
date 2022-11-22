@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+extern crate sgx_types;
+
 use serde_json::Value;
 use teaclave_attestation::report::SgxQuote;
 use teaclave_attestation::EndorsedAttestationReport;

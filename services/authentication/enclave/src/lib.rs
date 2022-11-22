@@ -17,10 +17,11 @@
 
 #[macro_use]
 extern crate log;
+extern crate sgx_types;
 use anyhow::{anyhow, Result};
 
 use rand::RngCore;
-use std::sync::{Arc, SgxRwLock as RwLock};
+use std::sync::{Arc, RwLock};
 use std::thread;
 
 use teaclave_attestation::{verifier, AttestationConfig, AttestedTlsConfig, RemoteAttestation};

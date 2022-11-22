@@ -14,7 +14,7 @@ pub type DBPersistKey = [u8; 16];
 use std::io::{self, Read, Write};
 use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, SgxMutex as Mutex};
+use std::sync::{Arc, Mutex};
 
 use libc;
 

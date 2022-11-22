@@ -17,6 +17,7 @@
 
 #[macro_use]
 extern crate log;
+extern crate sgx_types;
 
 use std::cell::RefCell;
 use std::format;

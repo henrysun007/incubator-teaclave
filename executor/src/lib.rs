@@ -16,6 +16,7 @@
 // under the License.
 
 extern crate log;
+extern crate sgx_types;
 
 #[cfg(executor_builtin)]
 mod builtin;

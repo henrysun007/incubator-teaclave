@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+extern crate sgx_types;
+
 mod worker;
 pub use worker::Worker;
 

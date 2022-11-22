@@ -17,12 +17,7 @@
 
 use anyhow::{anyhow, bail, Result};
 use log::debug;
-#[cfg(not(feature = "mesalock_sgx"))]
-use std::sync::RwLock;
-#[cfg(feature = "mesalock_sgx")]
-use std::sync::SgxRwLock as RwLock;
-
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
 #[cfg(feature = "mesalock_sgx")]
@@ -209,13 +204,13 @@ impl SgxTrustedTlsClientConfig {
         Self { ..self }
     }
 
-    pub fn client_cert(mut self, cert: &[u8], key_der: &[u8]) -> Self {
+    pub fn client_cert(mut self, cert: &[u8], key_der: &[u8]) -> Result<Self> {
         let cert_chain = vec![rustls::Certificate(cert.to_vec())];
         let key_der = rustls::PrivateKey(key_der.to_vec());
         self.client_config
-            .set_single_client_cert(cert_chain, key_der);
+            .set_single_client_cert(cert_chain, key_der)?;
 
-        Self { ..self }
+        Ok(Self { ..self })
     }
 
     pub fn from_attested_tls_config(
@@ -223,7 +218,7 @@ impl SgxTrustedTlsClientConfig {
     ) -> Result<Self> {
         let lock = attested_tls_config.clone();
         let tls_config = lock.read().map_err(|_| anyhow!("lock error"))?;
-        let mut config = Self::new().client_cert(&tls_config.cert, &tls_config.private_key);
+        let mut config = Self::new().client_cert(&tls_config.cert, &tls_config.private_key)?;
         config.attested_tls_config = Some(attested_tls_config);
         Ok(config)
     }
