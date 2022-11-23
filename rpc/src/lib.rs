@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#[cfg(feature = "mesalock_sgx")]
+extern crate sgx_trts;
+
 use serde::{Deserialize, Serialize};
 use teaclave_types::TeaclaveServiceResponseError;
 

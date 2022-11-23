@@ -14,6 +14,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+ 
+#[cfg(feature = "mesalock_sgx")]
+extern crate sgx_trts;
 
 use log::debug;
 use log::error;

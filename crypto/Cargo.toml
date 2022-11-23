@@ -36,7 +36,7 @@ enclave_unit_test = ["teaclave_test_utils/mesalock_sgx"]
 protected_fs_rs  = { path = "../common/protected_fs_rs", default-features = false}
 
 anyhow       = { version = "1.0.26" }
-rand         = { version = "0.7.0" }
+rand         = { version = "0.8.5" }
 serde        = { version = "1.0.92", features = ["derive"] }
 serde_json   = { version = "1.0.39" }
 ring         = { version = "0.16.5" }

@@ -16,6 +16,7 @@
 // under the License.
 
 extern crate sgx_types;
+extern crate sgx_trts;
 
 use serde_json::Value;
 use teaclave_attestation::report::SgxQuote;

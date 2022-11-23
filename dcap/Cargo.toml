@@ -30,7 +30,7 @@ serde            = { version = "1.0.92", features = ["derive"] }
 serde_json       = { version = "1.0.39" }
 rocket           = { git = "https://github.com/SergioBenitez/Rocket", rev = "dfc9e9aab01d349da32c52db393e35b7fffea63c", features = ["tls"] }
 libc             = { version = "0.2.66" }
-rand             = { version = "0.7.3" }
+rand             = { version = "0.8.5" }
 ring             = { version = "0.16.11" }
 untrusted        = { version = "0.7.0" }
 uuid             = { version = "0.8.1", features = ["v4"] }

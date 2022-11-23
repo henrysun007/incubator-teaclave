@@ -22,7 +22,7 @@ use log::debug;
 use sgx_rand::{RdRand, Rng};
 use sgx_crypto::ecc::EcPublicKey;
 use sgx_crypto::sha::Sha256;
-use sgx_tse::EnclaveReport;
+use sgx_tse::{EnclaveReport, EnclaveTarget};
 use sgx_types::error::SgxStatus;
 use sgx_types::error::SgxStatus::Success;
 use sgx_types::types::*;
@@ -78,9 +78,6 @@ extern "C" {
         p_quote: *mut u8,
         quote_size: u32,
     ) -> SgxStatus;
-
-    /// OCall to get target information of myself.
-    fn sgx_self_target(p_target_info: *mut TargetInfo) -> SgxStatus;
 }
 
 /// Initialize SGX quote, return attestation key ID selected by the platform and
@@ -151,16 +148,10 @@ pub(crate) fn get_sgx_quote(ak_id: &AttKeyId, report: Report) -> Result<Vec<u8>>
     rng.fill_bytes(&mut quote_nonce.rand);
     qe_report_info.nonce = quote_nonce;
 
-    debug!("sgx_self_target");
+    debug!("sgx self target");
     // Provide the target information of ourselves so that we can verify the QE report
     // returned with the quote
-    let mut tmp_target_info = TargetInfo::default();
-    let res = unsafe { sgx_self_target(&mut tmp_target_info as _) };
-
-
-    if res != Success {
-        return Err(PlatformError::GetSelfTargetInfoError(res));
-    }
+    let tmp_target_info = TargetInfo::for_self().map_err(|e| PlatformError::GetSelfTargetInfoError(e))?;
 
     qe_report_info.app_enclave_target_info = tmp_target_info;
 

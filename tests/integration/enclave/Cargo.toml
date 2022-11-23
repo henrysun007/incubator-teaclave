@@ -51,7 +51,7 @@ anyhow      = { version = "1.0.26" }
 serde       = { version = "1.0.92" }
 serde_json  = { version = "1.0.39" }
 thiserror   = { version = "1.0.9" }
-rand        = { version = "0.7.0" }
+rand        = { version = "0.8.5" }
 rustls      = { version = "0.17.0", features = ["dangerous_configuration"] }
 rustls-pemfile = { version = "1.0.1" }
 
