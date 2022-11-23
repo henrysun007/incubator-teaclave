@@ -26,8 +26,8 @@ extern crate libc;
 extern crate rand;
 extern crate ring;
 extern crate serde_json;
-extern crate sgx_types;
 extern crate sgx_crypto;
+extern crate sgx_types;
 extern crate untrusted;
 extern crate uuid;
 
@@ -114,7 +114,7 @@ fn to_report(rst: QlQvResult) -> &'static str {
     use QlQvResult::*;
     match rst {
         Max => panic!(),
-        _ => rst.as_str()
+        _ => rst.as_str(),
     }
 }
 
@@ -230,9 +230,7 @@ fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
         sha256.update(&quote.as_slice()).unwrap();
         sha256.update(&expiration_check_date).unwrap();
         sha256.update(&collateral_exp_status).unwrap();
-        sha256
-            .update(&(quote_verification_result as u32))
-            .unwrap();
+        sha256.update(&(quote_verification_result as u32)).unwrap();
         let sha256_hash = sha256.finalize().unwrap();
 
         // This check isn't quote necessary if we are verifying the nonce in

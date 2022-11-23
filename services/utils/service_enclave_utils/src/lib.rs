@@ -14,7 +14,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
- 
+
 #[cfg(feature = "mesalock_sgx")]
 extern crate sgx_trts;
 
@@ -61,9 +61,7 @@ impl ServiceEnclave {
 
         debug!("Enclave initializing");
 
-        if backtrace::enable_backtrace(backtrace::PrintFormat::Full)
-            .is_err()
-        {
+        if backtrace::enable_backtrace(backtrace::PrintFormat::Full).is_err() {
             error!("Cannot enable backtrace");
             return Err(teaclave_types::TeeServiceError::SgxError);
         }

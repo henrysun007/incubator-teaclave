@@ -58,15 +58,18 @@ impl RsaSign {
         let mut key = Vec::new();
         let mut f = runtime.open_input(IN_DATA)?;
         f.read_to_end(&mut key)?;
-        let key_pair = signature::RsaKeyPair::from_der(&key).map_err(|e| anyhow::anyhow!(e.to_string()))?;
+        let key_pair =
+            signature::RsaKeyPair::from_der(&key).map_err(|e| anyhow::anyhow!(e.to_string()))?;
         let mut sig = vec![0; key_pair.public_modulus_len()];
         let rng = rand::SystemRandom::new();
-        key_pair.sign(
-            &signature::RSA_PKCS1_SHA256,
-            &rng,
-            args.data.as_bytes(),
-            &mut sig,
-        ).map_err(|e| anyhow::anyhow!(e.to_string()))?;
+        key_pair
+            .sign(
+                &signature::RSA_PKCS1_SHA256,
+                &rng,
+                args.data.as_bytes(),
+                &mut sig,
+            )
+            .map_err(|e| anyhow::anyhow!(e.to_string()))?;
 
         let output_base64 = base64::encode(&sig);
         Ok(output_base64)

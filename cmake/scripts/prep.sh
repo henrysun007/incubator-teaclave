@@ -80,11 +80,11 @@ function build_edl() {
             --untrusted-dir ${TEACLAVE_OUT_DIR} && \
         #
         # $FILE_NAME_u.c -> lib$FILE_NAME_u.o -> lib$FILE_NAME_u.a
-        ${CMAKE_C_COMPILER} ${SGX_UNTRUSTED_CFLAGS} -c "${fname}_u.c" -o "lib${fname}_u.o"
+        ${CMAKE_C_COMPILER} ${SGX_UNTRUSTED_CFLAGS} -c "${fname}_u.c" -o "lib${fname}_u.o" && \
         ${CMAKE_AR} rcsD "lib${fname}_u.a" "lib${fname}_u.o" && \
         #
         # $FILE_NAME_t.c to $FILE_NAME_t.o
-        ${CMAKE_C_COMPILER} ${SGX_TRUSTED_CFLAGS} -c "${fname}_t.c" -o "lib${fname}_t.o"
+        ${CMAKE_C_COMPILER} ${SGX_TRUSTED_CFLAGS} -c "${fname}_t.c" -o "lib${fname}_t.o" &
     done
 }
 

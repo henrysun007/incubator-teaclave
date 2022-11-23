@@ -20,7 +20,6 @@ use protected_fs::ProtectedFile;
 use rand::prelude::RngCore;
 use ring::aead;
 use serde::{Deserialize, Serialize};
-use std::format;
 use std::io::{Read, Write};
 use std::path::Path;
 

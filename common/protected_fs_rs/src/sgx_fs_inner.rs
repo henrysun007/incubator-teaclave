@@ -19,8 +19,8 @@ use std::ffi::{CStr, CString};
 use std::io::{self, Error, SeekFrom};
 use std::path::Path;
 
-use crate::deps::Mac128bit;
 use crate::deps::Key128bit;
+use crate::deps::Mac128bit;
 
 use crate::sgx_tprotected_fs::{self, SgxFileStream};
 pub struct SgxFile(SgxFileStream);
@@ -93,12 +93,7 @@ impl SgxFile {
         SgxFile::open_c(&path, &opts, key, false)
     }
 
-    pub fn open_c(
-        path: &CStr,
-        opts: &CStr,
-        key: &Key128bit,
-        auto: bool,
-    ) -> io::Result<SgxFile> {
+    pub fn open_c(path: &CStr, opts: &CStr, key: &Key128bit, auto: bool) -> io::Result<SgxFile> {
         let file = if auto {
             SgxFileStream::open_auto_key(path, opts)
         } else {
@@ -154,10 +149,7 @@ impl SgxFile {
         self.0.clear_cache().map_err(Error::from_raw_os_error)
     }
 
-    pub fn get_current_meta_gmac(
-        &self,
-        meta_gmac: &mut Mac128bit,
-    ) -> io::Result<()> {
+    pub fn get_current_meta_gmac(&self, meta_gmac: &mut Mac128bit) -> io::Result<()> {
         self.0
             .get_current_meta_gmac(meta_gmac)
             .map_err(Error::from_raw_os_error)

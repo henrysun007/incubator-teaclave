@@ -131,13 +131,17 @@ impl rustls::ClientCertVerifier for AttestationReportVerifier {
         !cfg!(test_mode)
     }
 
-    fn client_auth_root_subjects(&self, _sni: Option<&webpki::DNSName>) -> Option<rustls::DistinguishedNames> {
+    fn client_auth_root_subjects(
+        &self,
+        _sni: Option<&webpki::DNSName>,
+    ) -> Option<rustls::DistinguishedNames> {
         Some(rustls::DistinguishedNames::new())
     }
 
     fn verify_client_cert(
         &self,
-        certs: &[rustls::Certificate], _sni: Option<&webpki::DNSName>
+        certs: &[rustls::Certificate],
+        _sni: Option<&webpki::DNSName>,
     ) -> std::result::Result<rustls::ClientCertVerified, rustls::TLSError> {
         // This call automatically verifies certificate signature
         debug!("verify client cert");

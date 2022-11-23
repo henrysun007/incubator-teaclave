@@ -71,7 +71,11 @@ impl LogisticRegressionTrain {
         let gd = GradientDesc::new(args.alg_alpha, args.alg_iters);
         let mut lr = LogisticRegressor::new(gd);
         lr.train(&data_matrix, &targets)?;
-        let model = Model::new(args.alg_alpha,args.alg_iters, lr.parameters().unwrap().data().to_owned());
+        let model = Model::new(
+            args.alg_alpha,
+            args.alg_iters,
+            lr.parameters().unwrap().data().to_owned(),
+        );
 
         let model_json = serde_json::to_string(&model)?;
         let mut model_file = runtime.create_output(OUT_MODEL_FILE)?;
@@ -93,7 +97,11 @@ pub struct Model {
 
 impl Model {
     pub fn new(alpha: f64, iters: usize, parameters: Vec<f64>) -> Self {
-        Self {alpha,iters,parameters}
+        Self {
+            alpha,
+            iters,
+            parameters,
+        }
     }
 
     pub fn alg(&self) -> GradientDesc {
@@ -104,7 +112,6 @@ impl Model {
         linalg::Vector::from(self.parameters.as_slice())
     }
 }
-
 
 fn parse_training_data(
     input: impl io::Read,

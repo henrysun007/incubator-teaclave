@@ -19,9 +19,9 @@
 //! report and transform into a remotely verifiable quote.
 
 use log::debug;
-use sgx_rand::{RdRand, Rng};
 use sgx_crypto::ecc::EcPublicKey;
 use sgx_crypto::sha::Sha256;
+use sgx_rand::{RdRand, Rng};
 use sgx_tse::{EnclaveReport, EnclaveTarget};
 use sgx_types::error::SgxStatus;
 use sgx_types::error::SgxStatus::Success;
@@ -118,7 +118,7 @@ pub(crate) fn create_sgx_isv_enclave_report(
     report_data.d[..32].clone_from_slice(&pub_k_gx);
     report_data.d[32..].clone_from_slice(&pub_k_gy);
 
-    let report = 
+    let report =
         Report::for_target(&target_info, &report_data).map_err(PlatformError::CreateReportError)?;
 
     Ok(report)
@@ -151,7 +151,8 @@ pub(crate) fn get_sgx_quote(ak_id: &AttKeyId, report: Report) -> Result<Vec<u8>>
     debug!("sgx self target");
     // Provide the target information of ourselves so that we can verify the QE report
     // returned with the quote
-    let tmp_target_info = TargetInfo::for_self().map_err(|e| PlatformError::GetSelfTargetInfoError(e))?;
+    let tmp_target_info =
+        TargetInfo::for_self().map_err(|e| PlatformError::GetSelfTargetInfoError(e))?;
 
     qe_report_info.app_enclave_target_info = tmp_target_info;
 
@@ -182,7 +183,9 @@ pub(crate) fn get_sgx_quote(ak_id: &AttKeyId, report: Report) -> Result<Vec<u8>>
     debug!("sgx verify report");
     let qe_report = qe_report_info.qe_report;
     // Perform a check on qe_report to verify if the qe_report is valid.
-    qe_report.verify().map_err(PlatformError::VerifyReportError)?;
+    qe_report
+        .verify()
+        .map_err(PlatformError::VerifyReportError)?;
 
     // Check qe_report to defend against replay attack. The purpose of
     // p_qe_report is for the ISV enclave to confirm the QUOTE it received

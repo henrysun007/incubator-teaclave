@@ -114,9 +114,10 @@ fn start_echo_service() {
             fs::File::open(END_FULLCHAIN).unwrap(),
         ))
         .unwrap();
-        let private_key =
-            &rustls_pemfile::pkcs8_private_keys(&mut io::BufReader::new(fs::File::open(END_KEY).unwrap()))
-                .unwrap()[0];
+        let private_key = &rustls_pemfile::pkcs8_private_keys(&mut io::BufReader::new(
+            fs::File::open(END_KEY).unwrap(),
+        ))
+        .unwrap()[0];
         let addr = "127.0.0.1:12345".parse().unwrap();
         let config = SgxTrustedTlsServerConfig::new()
             .server_cert(&cert[0].as_ref(), &private_key.0)

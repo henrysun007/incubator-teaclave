@@ -17,7 +17,8 @@
 
 use serde::{Deserialize, Serialize};
 
-use sgx_types::types::{EnclaveId, SgxStatus};
+use sgx_types::error::SgxStatus;
+use sgx_types::types::EnclaveId;
 
 use crate::ipc::IpcError;
 use crate::ipc::IpcSender;

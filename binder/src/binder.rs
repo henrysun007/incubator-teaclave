@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sgx_types::*;
 use sgx_types::function::sgx_destroy_enclave;
 use sgx_urts::enclave::SgxEnclave;
 

@@ -18,7 +18,6 @@
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
-use std::format;
 
 use teaclave_crypto::*;
 

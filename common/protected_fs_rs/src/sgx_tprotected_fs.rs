@@ -19,10 +19,10 @@
 use crate::deps::c_void;
 use crate::deps::cmp;
 use crate::deps::errno;
-use crate::deps::Mac128bit;
-use crate::deps::Key128bit;
 use crate::deps::size_t;
 use crate::deps::CStr;
+use crate::deps::Key128bit;
+use crate::deps::Mac128bit;
 use crate::deps::{c_char, c_int};
 use crate::deps::{int32_t, int64_t};
 use crate::deps::{OsError, OsResult};
@@ -69,10 +69,7 @@ extern "C" {
 
     pub fn sgx_fclear_cache(stream: SGX_FILE) -> int32_t;
 
-    pub fn sgx_get_current_meta_gmac(
-        stream: SGX_FILE,
-        out_gmac: *mut Mac128bit,
-    ) -> int32_t;
+    pub fn sgx_get_current_meta_gmac(stream: SGX_FILE, out_gmac: *mut Mac128bit) -> int32_t;
 
     pub fn sgx_rename_meta(stream: SGX_FILE, old: *const c_char, new: *const c_char) -> int32_t;
 }
@@ -82,11 +79,7 @@ fn max_len() -> usize {
 }
 
 unsafe fn rsgx_fopen(filename: &CStr, mode: &CStr, key: &Key128bit) -> OsResult<SGX_FILE> {
-    let file = sgx_fopen(
-        filename.as_ptr(),
-        mode.as_ptr(),
-        key as *const Key128bit,
-    );
+    let file = sgx_fopen(filename.as_ptr(), mode.as_ptr(), key as *const Key128bit);
     if file.is_null() {
         Err(errno())
     } else {
@@ -224,10 +217,7 @@ unsafe fn rsgx_fclear_cache(stream: SGX_FILE) -> OsError {
     }
 }
 
-unsafe fn rsgx_get_current_meta_gmac(
-    stream: SGX_FILE,
-    out_gmac: &mut Mac128bit,
-) -> OsError {
+unsafe fn rsgx_get_current_meta_gmac(stream: SGX_FILE, out_gmac: &mut Mac128bit) -> OsError {
     if stream.is_null() {
         return Err(libc::EINVAL);
     }

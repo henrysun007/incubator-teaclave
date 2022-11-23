@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sgx_types::error::SgxStatus;
+use sgx_types::function::{
+    sgx_get_quote_ex, sgx_get_quote_size_ex, sgx_init_quote_ex, sgx_select_att_key_id,
+};
 use sgx_types::types::*;
 use std::ptr;
 
@@ -36,10 +40,7 @@ extern "C" {
         p_pub_key_id: *mut u8,
     ) -> SgxStatus;
 
-    fn sgx_get_quote_size_ex(
-        p_att_key_id: *const AttKeyId,
-        p_quote_size: *mut u32,
-    ) -> SgxStatus;
+    fn sgx_get_quote_size_ex(p_att_key_id: *const AttKeyId, p_quote_size: *mut u32) -> SgxStatus;
 
     fn sgx_get_quote_ex(
         p_isv_enclave_report: *const Report,

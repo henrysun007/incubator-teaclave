@@ -17,8 +17,8 @@
 
 //! Filesystem manipulation operations.
 
-use crate::deps::Mac128bit;
 use crate::deps::Key128bit;
+use crate::deps::Mac128bit;
 use crate::sgx_fs_inner as fs_imp;
 use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::path::Path;
@@ -231,11 +231,7 @@ impl OpenOptions {
         self._open(path.as_ref())
     }
 
-    pub fn open_ex<P: AsRef<Path>>(
-        &self,
-        path: P,
-        key: &Key128bit,
-    ) -> io::Result<ProtectedFile> {
+    pub fn open_ex<P: AsRef<Path>>(&self, path: P, key: &Key128bit) -> io::Result<ProtectedFile> {
         self._open_ex(path.as_ref(), key)
     }
 

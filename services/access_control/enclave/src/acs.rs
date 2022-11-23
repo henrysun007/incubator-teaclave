@@ -301,7 +301,7 @@ impl AccessControlModule {
     }
 }
 pub(crate) fn init_acs() -> Result<()> {
-    let model_conf = CString::new(MODEL_TEXT).unwrap(); 
+    let model_conf = CString::new(MODEL_TEXT).unwrap();
     let ec = unsafe { acs_setup_model(model_conf.as_ptr()) };
 
     if ec != 0 {
