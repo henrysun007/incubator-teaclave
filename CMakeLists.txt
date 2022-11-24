@@ -269,7 +269,7 @@ add_custom_target(
       ${CARGO_BUILD_FLAGS} --features backtrace,net,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc
       ${MTEE_EXTRA_CARGO_FLAGS} --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
     COMMAND
-    rm -rf ${DEFAULT_STD_PATH} && mkdir -p ${DEFAULT_STD_PATH}
+    mkdir -p ${DEFAULT_STD_PATH}
     COMMAND
       cp -r ${TRUSTED_TARGET_DIR}/default_std/${SGX_LIB_TARGET}/${TARGET}/deps/*
       ${DEFAULT_STD_PATH}

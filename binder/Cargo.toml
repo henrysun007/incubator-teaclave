@@ -25,7 +25,7 @@ edition = "2021"
 
 [features]
 default = []
-app = ["sgx_urts"]
+app = ["sgx_urts/capi"]
 mesalock_sgx = [
     "teaclave_binder_attribute",
     "teaclave_types/mesalock_sgx",

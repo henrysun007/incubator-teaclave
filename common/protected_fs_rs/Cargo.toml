@@ -11,7 +11,7 @@ name = "protected_fs"
 
 [features]
 default = []
-mesalock_sgx = []
+mesalock_sgx = ["sgx_tse"]
 
 [dependencies]
 cfg-if      = { version = "0.1.9" }
@@ -22,3 +22,5 @@ libc        = { version = "0.2" }
 
 [build-dependencies]
 cfg-if      = { version = "0.1.9" }
+
+sgx_tse     = { version = "2.0.0", features = ["capi"], optional = true }

@@ -56,7 +56,7 @@ simple_asn1 = { git = "https://github.com/acw/simple_asn1", rev = "7db7a48" }
 
 # SGX crates
 gbdt          = { git = "https://github.com/mesatee/gbdt-rs", branch = "teaclave-sgx" }
-getrandom     = { path="../../../../getrandom" }
+getrandom     = { git = "https://github.com/mesatee/getrandom", branch = "teaclave-sgx" }
 image         = { git = "https://github.com/mesatee/image", branch = "v0.23.14-sgx"}
 num_cpus      = { git = "https://github.com/mesatee/num_cpus", branch = "teaclave-sgx" }
 rand          = { git = "https://github.com/mesatee/rand", branch = "teaclave-sgx" }

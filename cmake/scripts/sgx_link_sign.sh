@@ -55,8 +55,7 @@ ENCLAVE_SECURITY_LINK_FLAGS="-Wl,-z,relro,-z,now,-z,noexecstack"
 ENCLAVE_LINK_FLAGS="${ENCLAVE_SECURITY_LINK_FLAGS} \
                    -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
                    -Wl,--start-group \
-                   -lsgx_tprotected_fs -lsgx_tkey_exchange \
-                   -lsgx_tcxx -lsgx_tcrypto \
+                   -lsgx_tcxx \
                    ${TEACLAVE_LINK_FLAGS} \
                    -L${TRUSTED_TARGET_DIR}/${SGX_LIB_TARGET}/${TARGET} -l${CUR_PKG_NAME} \
                    -Wl,--end-group \
