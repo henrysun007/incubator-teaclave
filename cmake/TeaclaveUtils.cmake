@@ -214,7 +214,11 @@ function(add_sgx_build_target sgx_lib_path pkg_name)
     set(_enclave_info "/dev/null")
   endif()
 
-  set(RUSTFLAGS "${RUSTFLAGS} --sysroot ${TRUSTED_TARGET_DIR}/default_std/sysroot")
+  if(COV)
+    set(RUSTFLAGS "${RUSTFLAGS} --sysroot ${TRUSTED_TARGET_DIR}/cov_std/sysroot")
+  else()
+    set(RUSTFLAGS "${RUSTFLAGS} --sysroot ${TRUSTED_TARGET_DIR}/default_std/sysroot")
+  endif()
 
   add_custom_target(
     ${_target_name} ALL

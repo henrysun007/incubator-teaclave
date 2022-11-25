@@ -38,6 +38,7 @@ fn main() {
         .join("teaclave_build/target/config_gen");
     let unix_toml_dir = env::var("MT_SGXAPP_TOML_DIR").expect("MT_SGXAPP_TOML_DIR");
     let c = Command::new("cargo")
+        .env("CARGO_ENCODED_RUSTFLAGS", "")
         .current_dir(&unix_toml_dir)
         .args(&[
             "run",

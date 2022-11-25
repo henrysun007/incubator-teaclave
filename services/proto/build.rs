@@ -70,7 +70,8 @@ fn main() {
         "services/proto/src/proto/teaclave_scheduler_service.proto",
     ];
     let mut c = Command::new("cargo");
-    c.current_dir(&current_dir);
+    c.current_dir(&current_dir)
+        .env("CARGO_ENCODED_RUSTFLAGS", "");
     c.args(&[
         "run",
         "-Z",

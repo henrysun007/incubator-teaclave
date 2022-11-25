@@ -260,14 +260,14 @@ target_compile_options(pycomponent PUBLIC -UWITH_THREAD -O2 -fPIC -Wimplicit
                                           -I/usr/lib/pypy/include)
 
 set(DEFAULT_STD_PATH ${TRUSTED_TARGET_DIR}/default_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib)
+set(COV_STD_PATH ${TRUSTED_TARGET_DIR}/cov_std/sysroot/lib/rustlib/${SGX_LIB_TARGET}/lib)
 
 add_custom_target(
     default_std
     COMMAND
-      ${CMAKE_COMMAND} -E env ${TEACLAVE_COMMON_ENVS} RUSTFLAGS=${RUSTFLAGS}
-      ${MT_SCRIPT_DIR}/cargo_build_ex.sh --target-dir ${TRUSTED_TARGET_DIR}/default_std
-      ${CARGO_BUILD_FLAGS} --features backtrace,net,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc
-      ${MTEE_EXTRA_CARGO_FLAGS} --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
+      cargo build --target-dir ${TRUSTED_TARGET_DIR}/default_std
+      --features backtrace,net,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc 
+      --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
     COMMAND
     mkdir -p ${DEFAULT_STD_PATH}
     COMMAND
@@ -278,8 +278,24 @@ add_custom_target(
     WORKING_DIRECTORY ${RUST_SGX_SDK}/rustlib/std
     ) # default_std
 
+add_custom_target(
+    cov_std
+    COMMAND
+      cargo build --target-dir ${TRUSTED_TARGET_DIR}/cov_std
+      --features backtrace,net,profiler,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc
+      --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
+    COMMAND
+    mkdir -p ${COV_STD_PATH}
+    COMMAND
+      cp -r ${TRUSTED_TARGET_DIR}/cov_std/${SGX_LIB_TARGET}/${TARGET}/deps/*
+      ${COV_STD_PATH}
+    DEPENDS prep
+    COMMENT "Building cov std"
+    WORKING_DIRECTORY ${RUST_SGX_SDK}/rustlib/std
+    ) # cov_std
+
 list(LENGTH SGX_LIBS SGX_LIB_LEN)
-set(SGX_LIB_DEPENDS prep mesapy pycomponent default_std)
+set(SGX_LIB_DEPENDS prep mesapy pycomponent)
 math(EXPR SGX_LIB_LAST_INDEX "${SGX_LIB_LEN} - 1")
 foreach(_i RANGE ${SGX_LIB_LAST_INDEX})
   list(GET SGX_LIBS ${_i} _pkg_name)
@@ -289,6 +305,12 @@ foreach(_i RANGE ${SGX_LIB_LAST_INDEX})
 
   if(EXECUTOR_WAMR)
     list(APPEND SGX_LIB_DEPENDS wamr)
+  endif()
+
+  if(COV)
+    list(APPEND SGX_LIB_DEPENDS cov_std)
+  else()
+    list(APPEND SGX_LIB_DEPENDS default_std)
   endif()
 
   add_sgx_build_target(

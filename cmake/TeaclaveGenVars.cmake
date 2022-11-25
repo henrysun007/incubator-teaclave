@@ -99,7 +99,7 @@ else()
     check_exe_dependencies(lcov llvm-cov)
     set(SGX_ENCLAVE_FEATURES --features "mesalock_sgx cov")
     set(CARGO_INCREMENTAL 0)
-    set(RUSTFLAGS "${RUSTFLAGS} -D warnings -Zprofile -Ccodegen-units=1 \
+    set(RUSTFLAGS "${RUSTFLAGS} -Zprofile -Ccodegen-units=1 \
 -Cllvm_args=-inline-threshold=0 -Coverflow-checks=off")
   endif()
 endif()

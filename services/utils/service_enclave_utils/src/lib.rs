@@ -35,13 +35,10 @@ use teaclave_types::EnclaveInfo;
 mod macros;
 
 #[cfg(feature = "cov")]
-use sgx_trts::global_dtors_object;
-#[cfg(feature = "cov")]
-global_dtors_object! {
-    SGX_COV_FINALIZE, sgx_cov_exit = {
-        debug!("cov_writeout");
-        sgx_cov::cov_writeout();
-    }
+#[sgx_macros::global_dtor]
+fn cov_exit() {
+    println!("sgx_cov finished!");
+    sgx_cov::cov_writeout();
 }
 
 extern "C" {
