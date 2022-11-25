@@ -37,7 +37,7 @@ const VAL_LEN: usize = 48;
 fn gen_string(len: usize) -> String {
     let mut rng = rand::thread_rng();
     iter::repeat(())
-        .map(|()| rng.sample(Alphanumeric))
+        .map(|()| rng.sample(Alphanumeric) as char)
         .take(len)
         .collect()
 }
