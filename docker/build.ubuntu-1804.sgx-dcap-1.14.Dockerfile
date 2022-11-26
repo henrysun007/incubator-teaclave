@@ -17,14 +17,15 @@
 
 FROM ubuntu:18.04
 
-ENV VERSION 2.14.100.2-bionic1
-ENV SGX_DOWNLOAD_URL_BASE "https://download.01.org/intel-sgx/sgx-linux/2.14/distro/ubuntu18.04-server"
-ENV SGX_LINUX_X64_SDK sgx_linux_x64_sdk_2.14.100.2.bin
+ENV DCAP_VERSION 1.14.100.3-bionic1
+ENV VERSION 2.17.100.3-bionic1
+ENV SGX_LINUX_X64_SDK sgx_linux_x64_sdk_2.17.101.1.bin
+ENV SGX_DOWNLOAD_URL_BASE "https://download.01.org/intel-sgx/sgx-dcap/1.14/linux/distro/ubuntu18.04-server"
 ENV SGX_LINUX_X64_SDK_URL "$SGX_DOWNLOAD_URL_BASE/$SGX_LINUX_X64_SDK"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV RUST_TOOLCHAIN nightly-2020-10-25
+ENV RUST_TOOLCHAIN nightly-2022-10-22
 
 # install SGX dependencies
 RUN apt-get update && apt-get install -q -y \
@@ -46,18 +47,24 @@ RUN apt-get update && apt-get install -q -y \
 RUN echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu bionic main' | \
     tee /etc/apt/sources.list.d/intel-sgx.list
 RUN curl -fsSL  https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | apt-key add -
-RUN apt-get update && apt-get install -y \
-    libsgx-aesm-launch-plugin=$VERSION \
+RUN apt-get update && apt-get install -y -f \
+    libsgx-dcap-ql=$DCAP_VERSION \
+    libsgx-dcap-default-qpl=$DCAP_VERSION \
+    libsgx-dcap-ql-dbgsym=$DCAP_VERSION \
+    libsgx-dcap-default-qpl-dbgsym=$DCAP_VERSION \
+    libsgx-dcap-quote-verify=$DCAP_VERSION \
+    libsgx-dcap-quote-verify-dev=$DCAP_VERSION \
+    libsgx-urts=$VERSION \
     libsgx-enclave-common=$VERSION \
     libsgx-enclave-common-dev=$VERSION \
-    libsgx-epid=$VERSION \
-    libsgx-epid-dev=$VERSION \
-    libsgx-launch=$VERSION \
-    libsgx-launch-dev=$VERSION \
+    libsgx-enclave-common-dbgsym=$VERSION \
     libsgx-quote-ex=$VERSION \
     libsgx-quote-ex-dev=$VERSION \
-    libsgx-uae-service=$VERSION \
-    libsgx-urts=$VERSION
+    libsgx-dcap-ql-dev=$DCAP_VERSION \
+    libsgx-dcap-default-qpl-dev=$DCAP_VERSION \
+    libsgx-qe3-logic=$DCAP_VERSION \
+    libsgx-pce-logic=$DCAP_VERSION \
+    libsgx-uae-service=$VERSION
 RUN mkdir /var/run/aesmd && mkdir /etc/init
 RUN wget $SGX_LINUX_X64_SDK_URL               && \
     chmod u+x $SGX_LINUX_X64_SDK              && \
@@ -95,6 +102,7 @@ RUN apt-get update && apt-get install -q -y \
     lcov \
     llvm \
     curl \
+    iproute2 \
     python3-pip
 
 RUN apt-get update && apt-get install -q -y \
