@@ -74,10 +74,6 @@ fn main() {
         .env("CARGO_ENCODED_RUSTFLAGS", "");
     c.args(&[
         "run",
-        "-Z",
-        "build-std",
-        "--target",
-        "x86_64-unknown-linux-gnu",
         "--target-dir",
         &target_dir.to_string_lossy(),
         "--manifest-path",
