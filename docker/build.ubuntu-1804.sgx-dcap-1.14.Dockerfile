@@ -46,7 +46,7 @@ RUN apt-get update && apt-get install -q -y \
 
 RUN echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu bionic main' | \
     tee /etc/apt/sources.list.d/intel-sgx.list
-RUN curl -fsSL  https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | apt-key add -
+RUN apt-key adv --fetch-keys https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key
 RUN apt-get update && apt-get install -y -f \
     libsgx-dcap-ql=$DCAP_VERSION \
     libsgx-dcap-default-qpl=$DCAP_VERSION \
