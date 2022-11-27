@@ -92,7 +92,7 @@ jobs:
           make run-sdk-tests
   sim-debug-example:
     runs-on: ubuntu-20.04
-    container: ghcr.io/henrysun007/ghtoken_product_demo:upgrade:upgrade
+    container: ghcr.io/henrysun007/ghtoken_product_demo:upgrade
     steps:
       - uses: actions/checkout@v3
       - name: Build

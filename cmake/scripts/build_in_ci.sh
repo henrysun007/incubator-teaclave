@@ -24,6 +24,8 @@ cp /root/.bashrc $HOME/.bashrc
 ln -sf /root/.rustup ~/.rustup
 ln -sf /root/.cargo ~/.cargo
 
+git config --global --add safe.directory .
+
 # Build
 . /opt/sgxsdk/environment &&
 . ~/.cargo/env &&
