@@ -20,7 +20,7 @@ name: Docker
 on: [push, workflow_dispatch]
 
 env:
-  IMAGE_NAME: ghtoken_product_demo
+  IMAGE_NAME: teaclave_build 
 
 jobs:
   push:
