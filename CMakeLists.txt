@@ -265,6 +265,7 @@ set(COV_STD_PATH ${TRUSTED_TARGET_DIR}/cov_std/sysroot/lib/rustlib/${SGX_LIB_TAR
 add_custom_target(
     default_std
     COMMAND
+      ${CMAKE_COMMAND} -E env ${TEACLAVE_COMMON_ENVS} RUSTFLAGS=""
       cargo build --target-dir ${TRUSTED_TARGET_DIR}/default_std
       --features backtrace,net,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc 
       --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
@@ -281,6 +282,7 @@ add_custom_target(
 add_custom_target(
     cov_std
     COMMAND
+      ${CMAKE_COMMAND} -E env ${TEACLAVE_COMMON_ENVS} RUSTFLAGS=""
       cargo build --target-dir ${TRUSTED_TARGET_DIR}/cov_std
       --features backtrace,net,profiler,thread,untrusted_time,unsupported_process -Zbuild-std=core,alloc
       --target ${RUST_SGX_SDK}/rustlib/${SGX_LIB_TARGET}.json
