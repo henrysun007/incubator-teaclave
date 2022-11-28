@@ -18,6 +18,8 @@
 [workspace]
 
 members = [
+  "file_agent",                  # ignore
+  "common/protected_fs_rs",      # ignore
   "services/access_control/app",
   "services/authentication/app",
   "services/storage/app",
