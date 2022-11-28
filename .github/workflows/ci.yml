@@ -52,7 +52,8 @@ jobs:
         run: |
           cp /root/.bashrc $HOME/.bashrc &&
           ln -sf /root/.rustup ~/.rustup &&
-          ln -sf /root/.cargo ~/.cargo
+          ln -sf /root/.cargo ~/.cargo &&
+          git config --global --add safe.directory /__w/incubator-teaclave/incubator-teaclave
       - name: Checking code format
         run: |
           . /root/.cargo/env &&
@@ -69,7 +70,8 @@ jobs:
         run: |
           cp /root/.bashrc $HOME/.bashrc &&
           ln -sf /root/.rustup ~/.rustup &&
-          ln -sf /root/.cargo ~/.cargo
+          ln -sf /root/.cargo ~/.cargo &&
+          git config --global --add safe.directory /__w/incubator-teaclave/incubator-teaclave
       - name: Code linting with Clippy
         run: |
           . /opt/sgxsdk/environment &&

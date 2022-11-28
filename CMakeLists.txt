@@ -193,7 +193,7 @@ if(USE_PREBUILT_MESAPY)
 add_custom_command(
   OUTPUT ${MESAPY_OUTPUTS}
   COMMAND
-    https_proxy=http://agent.baidu.com:8118 wget -qN https://github.com/mesatee/mesapy/releases/download/${MESAPY_VERSION}/mesapy-${MESAPY_VERSION}.tar.gz &&
+    wget -qN https://github.com/mesatee/mesapy/releases/download/${MESAPY_VERSION}/mesapy-${MESAPY_VERSION}.tar.gz &&
     tar xzf mesapy-${MESAPY_VERSION}.tar.gz
   DEPENDS prep
   WORKING_DIRECTORY ${TEACLAVE_OUT_DIR})

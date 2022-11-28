@@ -24,7 +24,8 @@ cp /root/.bashrc $HOME/.bashrc
 ln -sf /root/.rustup ~/.rustup
 ln -sf /root/.cargo ~/.cargo
 
-git config --global --add safe.directory .
+## workaround permission issue
+git config --global --add safe.directory /__w/incubator-teaclave/incubator-teaclave
 
 # Build
 . /opt/sgxsdk/environment &&
