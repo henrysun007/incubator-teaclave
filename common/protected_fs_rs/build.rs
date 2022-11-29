@@ -47,7 +47,7 @@ fn build_non_sgx_protected_fs_c_with_cmake() {
         .arg("--target")
         .arg(&target)
         .arg("--build_type")
-        .arg(&build_type)
+        .arg(build_type)
         .status()
         .expect("bash command failed to start");
     assert!(status.success());
@@ -85,7 +85,7 @@ fn build_sgx_protected_fs_c_with_cmake() {
         .arg("--target")
         .arg(&target)
         .arg("--build_type")
-        .arg(&build_type)
+        .arg(build_type)
         .status()
         .expect("bash command failed to start");
     assert!(status.success());
