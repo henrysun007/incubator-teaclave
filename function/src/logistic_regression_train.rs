@@ -191,8 +191,8 @@ pub mod tests {
             .unwrap();
         assert_eq!(summary, "Trained 100 lines of data.");
 
-        let _result = fs::read_to_string(&plain_output).unwrap();
-        let _expected = fs::read_to_string(&expected_output).unwrap();
-        // assert_eq!(&result[..], &expected[..]);
+        let result = fs::read_to_string(&plain_output).unwrap();
+        let expected = fs::read_to_string(&expected_output).unwrap();
+        assert_eq!(&result[..], &expected[..]);
     }
 }
