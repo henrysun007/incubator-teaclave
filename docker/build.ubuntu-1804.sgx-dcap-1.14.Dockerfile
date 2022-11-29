@@ -123,7 +123,7 @@ RUN apt-get install -q -y \
     libxml2-dev
 
 # TVM Python builder dependencies
-RUN pip3 install onnx==1.9.0 numpy decorator attrs spicy
+RUN pip3 install onnx==1.9.0 numpy decorator attrs spicy protobuf==3.20.*
 
 # Build TVM
 RUN git clone https://github.com/apache/tvm /tvm                && \

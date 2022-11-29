@@ -45,7 +45,7 @@ jobs:
           cd sdk/swift/TeaclaveClientSDK && xcodebuild -scheme TeaclaveClientSDK
   format:
     runs-on: ubuntu-20.04
-    container: ghcr.io/henrysun007/ghtoken_product_demo:upgrade
+    container: ghcr.io/henrysun007/teaclave_build:upgrade
     steps:
       - uses: actions/checkout@v3
       - name: Setting up $HOME
@@ -63,7 +63,7 @@ jobs:
           make check
   lint:
     runs-on: ubuntu-20.04
-    container: ghcr.io/henrysun007/ghtoken_product_demo:upgrade
+    container: ghcr.io/henrysun007/teaclave_build:upgrade
     steps:
       - uses: actions/checkout@v3
       - name: Setting up $HOME
