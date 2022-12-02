@@ -17,13 +17,16 @@
 
 name: Docker 
 
-on: [push, workflow_dispatch]
-
-env:
-  IMAGE_NAME: teaclave_build 
+on:
+  workflow_dispatch:
+    inputs:
+      image_repo:
+        description: 'image repository'
+        required: true
+        default: ${{ github.repository_owner }}
 
 jobs:
-  push:
+  ubuntu-2004-sgx:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -32,26 +35,129 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build image
-        run: cd docker && docker build . --file build.ubuntu-2004.sgx-2.17.1.Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-
       - name: Log in to registry
         # This is where you will update the personal access token to GITHUB_TOKEN
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: Push image
+      - name: Build and push image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=ubuntu-2004-sgx-2.17.1
+          IMAGE_NAME=ghcr.io/${{ github.event.inputs.image_repo }}/teaclave-build-$IMAGE_ID
 
           # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
           [ "$VERSION" == "master" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
+          echo IMAGE_NAME=$IMAGE_NAME
           echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+
+          # build image
+          cd docker && docker build . --file build.$IMAGE_ID.Dockerfile --tag $IMAGE_NAME:$VERSION --label "runnumber=${GITHUB_RUN_ID}"
+
+          docker push $IMAGE_NAME:$VERSION
+
+  ubuntu-1804-sgx:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to registry
+        # This is where you will update the personal access token to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Build and push image
+        run: |
+          IMAGE_ID=ubuntu-1804-sgx-2.17.1
+          IMAGE_NAME=ghcr.io/${{ github.event.inputs.image_repo }}/teaclave-build-$IMAGE_ID
+
+          # Change all uppercase to lowercase
+          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_NAME=$IMAGE_NAME
+          echo VERSION=$VERSION
+
+          # build image
+          cd docker && docker build . --file build.$IMAGE_ID.Dockerfile --tag $IMAGE_NAME:$VERSION --label "runnumber=${GITHUB_RUN_ID}"
+
+          docker push $IMAGE_NAME:$VERSION
+
+  ubuntu-2004-dcap:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to registry
+        # This is where you will update the personal access token to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Build and push image
+        run: |
+          IMAGE_ID=ubuntu-2004-sgx-dcap-1.14
+          IMAGE_NAME=ghcr.io/${{ github.event.inputs.image_repo }}/teaclave-build-$IMAGE_ID
+
+          # Change all uppercase to lowercase
+          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_NAME=$IMAGE_NAME
+          echo VERSION=$VERSION
+
+          # build image
+          cd docker && docker build . --file build.$IMAGE_ID.Dockerfile --tag $IMAGE_NAME:$VERSION --label "runnumber=${GITHUB_RUN_ID}"
+
+          docker push $IMAGE_NAME:$VERSION
+
+  ubuntu-1804-dcap:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to registry
+        # This is where you will update the personal access token to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Build and push image
+        run: |
+          IMAGE_ID=ubuntu-1804-sgx-dcap-1.14
+          IMAGE_NAME=ghcr.io/${{ github.event.inputs.image_repo }}/teaclave-build-$IMAGE_ID
+
+          # Change all uppercase to lowercase
+          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_NAME=$IMAGE_NAME
+          echo VERSION=$VERSION
+
+          # build image
+          cd docker && docker build . --file build.$IMAGE_ID.Dockerfile --tag $IMAGE_NAME:$VERSION --label "runnumber=${GITHUB_RUN_ID}"
+
+          docker push $IMAGE_NAME:$VERSION

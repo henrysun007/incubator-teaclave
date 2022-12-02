@@ -17,10 +17,10 @@
 
 FROM ubuntu:20.04
 
-ENV DCAP_VERSION 1.14.100.3-bionic1
+ENV DCAP_VERSION 1.14.100.3-focal1
 ENV VERSION 2.17.100.3-focal1
 ENV SGX_DOWNLOAD_URL_BASE "https://download.01.org/intel-sgx/sgx-dcap/1.14/linux/distro/ubuntu20.04-server"
-ENV SGX_LINUX_X64_SDK sgx_linux_x64_sdk_2.17.101.1.bin
+ENV SGX_LINUX_X64_SDK sgx_linux_x64_sdk_2.17.100.3.bin
 ENV SGX_LINUX_X64_SDK_URL "$SGX_DOWNLOAD_URL_BASE/$SGX_LINUX_X64_SDK"
 
 ENV DEBIAN_FRONTEND=noninteractive
