@@ -95,6 +95,7 @@ impl NistP256KeyPair {
         use num_bigint::BigUint;
         use std::time::SystemTime;
         use std::time::UNIX_EPOCH;
+        #[allow(unused_imports)]
         use std::untrusted::time::SystemTimeEx;
         use yasna::construct_der;
         use yasna::models::{ObjectIdentifier, UTCTime};
@@ -110,11 +111,13 @@ impl NistP256KeyPair {
 
         // UNIX_EPOCH is the earliest time stamp. This unwrap should constantly succeed.
         let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-        let issue_ts = chrono::Utc.timestamp(now.as_secs() as i64, 0);
+        let issue_ts = chrono::Utc.timestamp_opt(now.as_secs() as i64, 0).unwrap();
 
         // This is guaranteed to be a valid duration.
         let expire = now + chrono::Duration::days(CERT_VALID_DAYS).to_std().unwrap();
-        let expire_ts = chrono::Utc.timestamp(expire.as_secs() as i64, 0);
+        let expire_ts = chrono::Utc
+            .timestamp_opt(expire.as_secs() as i64, 0)
+            .unwrap();
 
         // Construct certificate with payload in extension in DER.
         let tbs_cert_der = construct_der(|writer| {

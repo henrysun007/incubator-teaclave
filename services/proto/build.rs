@@ -54,7 +54,7 @@ fn main() {
     };
 
     // Use the offline flag when building within Teaclave's build system.
-    let offline = if env::var("MT_SGXAPP_TOML_DIR").is_ok() {
+    let _offline = if env::var("MT_SGXAPP_TOML_DIR").is_ok() {
         true
     } else {
         false

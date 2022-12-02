@@ -21,6 +21,7 @@ use std::iter;
 use std::string::String;
 use std::time::Instant;
 #[cfg(feature = "mesalock_sgx")]
+#[allow(unused_imports)]
 use std::untrusted::time::InstantEx;
 
 use rusty_leveldb::CompressionType;

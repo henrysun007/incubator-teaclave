@@ -21,6 +21,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::convert::TryInto;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
+#[allow(unused_imports)]
 use std::untrusted::time::SystemTimeEx;
 
 use teaclave_proto::teaclave_common::{ExecutorCommand, ExecutorStatus};
@@ -400,9 +401,4 @@ impl TeaclaveScheduler for TeaclaveSchedulerService {
         resources.put_into_db(&ts)?;
         Ok(UpdateTaskResultResponse {})
     }
-}
-
-#[cfg(test_mode)]
-mod test_mode {
-    use super::*;
 }

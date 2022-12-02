@@ -39,7 +39,6 @@ exclude = [
 [patch.crates-io]
 # We cannot remove these crates, because proto crates depend on them
 sgx_crypto = { path = "../../../third_party/rust-sgx-sdk/sgx_crypto" }
-sgx_rand   = { path = "../../../third_party/rust-sgx-sdk/sgx_rand" }
 sgx_types  = { path = "../../../third_party/rust-sgx-sdk/sgx_types" }
 sgx_tse    = { path = "../../../third_party/rust-sgx-sdk/sgx_tse" }
 sgx_urts   = { path = "../../../third_party/rust-sgx-sdk/sgx_urts" }

@@ -49,7 +49,7 @@ extern "C" {
 pub struct ServiceEnclave;
 
 impl ServiceEnclave {
-    pub fn init(name: &str) -> teaclave_types::TeeServiceResult<()> {
+    pub fn init(_name: &str) -> teaclave_types::TeeServiceResult<()> {
         env_logger::init_from_env(
             env_logger::Env::new()
                 .filter_or("TEACLAVE_LOG", "RUST_LOG")

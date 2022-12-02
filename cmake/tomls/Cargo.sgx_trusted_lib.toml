@@ -46,7 +46,6 @@ sgx_macros = { path = "../../../third_party/rust-sgx-sdk/sgx_macros" }
 sgx_rand   = { path = "../../../third_party/rust-sgx-sdk/sgx_rand" }
 sgx_tse    = { path = "../../../third_party/rust-sgx-sdk/sgx_tse" }
 sgx_tstd   = { path = "../../../third_party/rust-sgx-sdk/sgx_tstd" }
-sgx_tseal  = { path = "../../../third_party/rust-sgx-sdk/sgx_tseal" }
 sgx_types  = { path = "../../../third_party/rust-sgx-sdk/sgx_types" }
 sgx_trts   = { path = "../../../third_party/rust-sgx-sdk/sgx_trts" }
 sgx_urts   = { path = "../../../third_party/rust-sgx-sdk/sgx_urts" }

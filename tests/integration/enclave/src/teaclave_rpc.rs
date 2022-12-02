@@ -106,7 +106,6 @@ pub fn run_tests() -> bool {
 }
 
 fn start_echo_service() {
-    use super::*;
     use std::thread;
     use std::time::Duration;
     thread::spawn(move || {
@@ -129,8 +128,6 @@ fn start_echo_service() {
 }
 
 fn echo_success() {
-    use super::*;
-
     let channel = Endpoint::new("localhost:12345").connect().unwrap();
     let mut client = EchoClient::new(channel).unwrap();
     let request = SayRequest {

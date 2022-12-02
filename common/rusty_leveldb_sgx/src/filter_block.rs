@@ -243,7 +243,7 @@ pub mod tests {
 
         for block_offset in vec![0, 1024, 5000, 6025].into_iter() {
             for key in get_keys().iter() {
-                let str = assert!(
+                assert!(
                     reader.key_may_match(block_offset, key),
                     "{} {:?} ",
                     block_offset,

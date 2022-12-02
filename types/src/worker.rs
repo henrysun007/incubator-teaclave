@@ -146,8 +146,6 @@ pub struct ExecutionResult {
 
 #[cfg(feature = "enclave_unit_test")]
 pub mod tests {
-    use super::*;
-
     pub fn run_tests() -> bool {
         true
     }

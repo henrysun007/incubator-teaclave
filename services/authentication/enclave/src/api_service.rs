@@ -21,6 +21,7 @@ use crate::user_db::DbClient;
 use crate::user_info::UserInfo;
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+#[allow(unused_imports)]
 use std::untrusted::time::SystemTimeEx;
 use teaclave_proto::teaclave_authentication_service::*;
 use teaclave_rpc::Request;

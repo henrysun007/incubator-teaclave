@@ -21,6 +21,7 @@ use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
 #[cfg(feature = "mesalock_sgx")]
+#[allow(unused_imports)]
 use std::untrusted::time::SystemTimeEx;
 
 use teaclave_attestation::report::AttestationReport;

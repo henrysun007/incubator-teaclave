@@ -20,7 +20,6 @@ extern crate log;
 extern crate sgx_types;
 
 use std::cell::RefCell;
-use std::format;
 use std::sync::mpsc::channel;
 use std::thread;
 

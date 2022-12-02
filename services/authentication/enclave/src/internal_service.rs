@@ -71,6 +71,7 @@ pub mod tests {
     use crate::user_info::*;
     use rand::RngCore;
     use std::time::{Duration, SystemTime, UNIX_EPOCH};
+    #[allow(unused_imports)]
     use std::untrusted::time::SystemTimeEx;
     use std::vec;
     use teaclave_proto::teaclave_common::UserCredential;

@@ -298,7 +298,6 @@ impl VersionEdit {
 pub mod tests {
     use super::CompactionPointer;
     use super::VersionEdit;
-    use super::*;
 
     use crate::cmp::{Cmp, DefaultCmp};
     use crate::types::FileMetaData;

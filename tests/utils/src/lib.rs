@@ -26,6 +26,7 @@ inventory::collect!(TestCase);
 
 use std::time::Instant;
 #[cfg(feature = "mesalock_sgx")]
+#[allow(unused_imports)]
 use std::untrusted::time::InstantEx;
 
 #[macro_export]

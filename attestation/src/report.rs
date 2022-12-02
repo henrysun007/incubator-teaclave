@@ -26,6 +26,7 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::time::*;
 #[cfg(feature = "mesalock_sgx")]
+#[allow(unused_imports)]
 use std::untrusted::time::SystemTimeEx;
 
 use anyhow::{anyhow, bail, ensure, Error, Result};

@@ -23,7 +23,6 @@ use std::io::{self, BufRead, BufReader, Write};
 use teaclave_types::{FunctionArguments, FunctionRuntime};
 
 use rusty_machine::learning::logistic_reg::LogisticRegressor;
-use rusty_machine::learning::optim::grad_desc::GradientDesc;
 use rusty_machine::learning::SupModel;
 use rusty_machine::linalg;
 

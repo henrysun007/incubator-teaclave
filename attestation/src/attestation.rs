@@ -25,6 +25,7 @@ use crate::EndorsedAttestationReport;
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::{Duration, SystemTime};
+#[allow(unused_imports)]
 use std::untrusted::time::SystemTimeEx;
 
 use anyhow::{anyhow, Result};
