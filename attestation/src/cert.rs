@@ -320,7 +320,7 @@ impl Asn1Ty for Bytes {
     const TAG: yasna::Tag = yasna::tags::TAG_OCTETSTRING;
 
     fn dump(writer: Writer<'_>, value: Self::ValueTy) {
-        writer.write_bytes(&value.as_slice());
+        writer.write_bytes(value.as_slice());
     }
 
     fn load<'a>(reader: Reader<'a, '_>) -> ASN1Result<Self::ValueTy> {

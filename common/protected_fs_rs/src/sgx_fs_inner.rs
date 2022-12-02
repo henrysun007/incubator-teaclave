@@ -130,7 +130,7 @@ impl SgxFile {
             .map_err(Error::from_raw_os_error)?;
 
         let offset = self.tell()?;
-        Ok(offset as u64)
+        Ok(offset)
     }
 
     pub fn flush(&self) -> io::Result<()> {

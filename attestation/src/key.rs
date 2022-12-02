@@ -176,11 +176,11 @@ impl NistP256KeyPair {
 
         yasna::construct_der(|writer| {
             writer.write_sequence(|writer| {
-                writer.next().write_der(&tbs_cert_der.as_slice());
+                writer.next().write_der(tbs_cert_der.as_slice());
                 CertSignAlgo::dump(writer.next(), asn1_seq!(ecdsa_with_sha256_oid.clone()));
                 writer
                     .next()
-                    .write_bitvec(&BitVec::from_bytes(&sig_der.as_slice()));
+                    .write_bitvec(&BitVec::from_bytes(sig_der.as_slice()));
             });
         })
     }

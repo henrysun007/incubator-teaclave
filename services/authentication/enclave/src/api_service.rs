@@ -52,7 +52,7 @@ impl TeaclaveAuthenticationApiService {
         id: &str,
         token: &str,
     ) -> Result<UserRole, AuthenticationError> {
-        let user: UserInfo = match self.db_client.get_user(&id) {
+        let user: UserInfo = match self.db_client.get_user(id) {
             Ok(value) => value,
             Err(_) => bail!(AuthenticationError::InvalidUserId),
         };
@@ -61,7 +61,7 @@ impl TeaclaveAuthenticationApiService {
             bail!(AuthenticationError::InvalidToken);
         }
 
-        match user.validate_token(&self.jwt_secret, &token) {
+        match user.validate_token(&self.jwt_secret, token) {
             Ok(claims) => Ok(claims.get_role()),
             Err(_) => bail!(AuthenticationError::IncorrectToken),
         }
@@ -246,7 +246,7 @@ impl TeaclaveAuthenticationApi for TeaclaveAuthenticationApiService {
         let new_password = uuid::Uuid::new_v4()
             .to_simple()
             .encode_lower(&mut encode_buffer);
-        let updated_user = UserInfo::new(&request.id, &new_password, user.role);
+        let updated_user = UserInfo::new(&request.id, new_password, user.role);
         match self.db_client.update_user(&updated_user) {
             Ok(_) => Ok(ResetUserPasswordResponse {
                 password: new_password.to_string(),

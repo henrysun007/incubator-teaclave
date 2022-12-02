@@ -159,14 +159,6 @@ impl<'a> Seek for &'a ProtectedFile {
 }
 
 impl OpenOptions {
-    /// Creates a blank new set of options ready for configuration.
-    ///
-    /// All options are initially set to `false`.
-    ///
-    pub fn default() -> OpenOptions {
-        OpenOptions(fs_imp::OpenOptions::new())
-    }
-
     /// Sets the option for read access.
     ///
     /// This option, when true, will indicate that the file should be
@@ -243,6 +235,16 @@ impl OpenOptions {
     fn _open_ex(&self, path: &Path, key: &Key128bit) -> io::Result<ProtectedFile> {
         let inner = fs_imp::SgxFile::open_ex(path, &self.0, key)?;
         Ok(ProtectedFile { inner })
+    }
+}
+
+impl Default for OpenOptions {
+    /// Creates a blank new set of options ready for configuration.
+    ///
+    /// All options are initially set to `false`.
+    ///
+    fn default() -> OpenOptions {
+        OpenOptions(fs_imp::OpenOptions::new())
     }
 }
 

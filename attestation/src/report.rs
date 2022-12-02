@@ -120,7 +120,7 @@ impl fmt::Display for SgxEnclaveReport {
         writeln!(
             f,
             "The value of REPORT (hex): {}",
-            hex::encode(&self.report_data.to_vec())
+            hex::encode(self.report_data)
         )
     }
 }
@@ -390,7 +390,7 @@ impl fmt::Display for SgxQuote {
         writeln!(
             f,
             "Custom user-defined data (hex): {}",
-            hex::encode(&self.user_data)
+            hex::encode(self.user_data)
         )?;
         write!(f, "{}", self.isv_enclave_report)
     }
@@ -592,7 +592,7 @@ impl AttestationReport {
             let quote_encoded = attn_report["isvEnclaveQuoteBody"]
                 .as_str()
                 .ok_or_else(|| Error::new(AttestationError::ReportError))?;
-            let quote_raw = base64::decode(&quote_encoded.as_bytes())?;
+            let quote_raw = base64::decode(quote_encoded.as_bytes())?;
             SgxQuote::parse_from(quote_raw.as_slice())?
         };
 
@@ -694,7 +694,7 @@ pub mod tests {
     pub fn test_sgx_quote_parse_from() {
         let attn_report = attesation_report();
         let sgx_quote_body_encoded = attn_report["isvEnclaveQuoteBody"].as_str().unwrap();
-        let quote_raw = base64::decode(&sgx_quote_body_encoded.as_bytes()).unwrap();
+        let quote_raw = base64::decode(sgx_quote_body_encoded.as_bytes()).unwrap();
         let sgx_quote = SgxQuote::parse_from(quote_raw.as_slice()).unwrap();
 
         assert_eq!(

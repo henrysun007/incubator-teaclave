@@ -41,7 +41,7 @@ fn handle_run_test(_: &RunTestInput) -> TeeServiceResult<RunTestOutput> {
         teaclave_rpc::run_tests(),
         teaclave_worker::run_tests()
     );
-    assert_eq!(ret, true);
+    assert!(ret);
 
     Ok(RunTestOutput)
 }

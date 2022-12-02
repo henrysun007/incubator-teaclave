@@ -84,8 +84,10 @@ impl UserInfo {
             iss,
             exp,
         };
-        let mut header = jwt::Header::default();
-        header.alg = JWT_ALG;
+        let header = jsonwebtoken::Header {
+            alg: JWT_ALG,
+            ..Default::default()
+        };
         let secret = jwt::EncodingKey::from_secret(secret);
         let token = jwt::encode(&header, &claims, &secret)?;
         Ok(token)

@@ -148,7 +148,7 @@ impl rustls::ClientCertVerifier for AttestationReportVerifier {
         if certs.len() != 1 {
             return Err(rustls::TLSError::NoCertificatesPresented);
         }
-        if self.verify_cert(&certs) {
+        if self.verify_cert(certs) {
             Ok(rustls::ClientCertVerified::assertion())
         } else {
             Err(rustls::TLSError::WebPKIError(

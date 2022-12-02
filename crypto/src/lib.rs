@@ -293,7 +293,7 @@ pub mod tests {
         let mut buf = plain_text.to_vec();
         aead_encrypt(&aead::AES_128_GCM, &mut buf, &key, &iv).unwrap();
         let result = aead_decrypt(&aead::AES_128_GCM, &mut buf, &key, &iv).unwrap();
-        assert_eq!(&result[..], &plain_text[..]);
+        assert_eq!(result, plain_text);
     }
 
     fn test_crypto_info() {

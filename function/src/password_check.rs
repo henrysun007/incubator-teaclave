@@ -89,8 +89,8 @@ pub mod tests {
         let arguments = FunctionArguments::default();
 
         let input_files = StagedFiles::new(hashmap!(
-            "password" => StagedFileInfo::new(&password_input, TeaclaveFile128Key::random(), FileAuthTag::mock()),
-            "exposed_passwords" => StagedFileInfo::new(&exposed_passwords_input, TeaclaveFile128Key::random(), FileAuthTag::mock()),
+            "password" => StagedFileInfo::new(password_input, TeaclaveFile128Key::random(), FileAuthTag::mock()),
+            "exposed_passwords" => StagedFileInfo::new(exposed_passwords_input, TeaclaveFile128Key::random(), FileAuthTag::mock()),
         ));
         let output_files = StagedFiles::new(hashmap!());
         let runtime = Box::new(RawIoRuntime::new(input_files, output_files));

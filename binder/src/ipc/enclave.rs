@@ -28,7 +28,7 @@ impl IpcReceiver for ECallReceiver {
         V: serde::Serialize,
         X: IpcService<U, V>,
     {
-        let input: U = serde_json::from_slice(&input_payload)?;
+        let input: U = serde_json::from_slice(input_payload)?;
         let response: Result<V, teaclave_types::TeeServiceError> = x.handle_invoke(input);
         let response_payload = serde_json::to_vec(&response)?;
 

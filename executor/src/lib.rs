@@ -36,6 +36,7 @@ pub use wamr::WAMicroRuntime;
 pub mod tests {
     use super::*;
 
+    #[allow(clippy::vec_init_then_push)]
     pub fn run_tests() -> bool {
         let mut v: Vec<bool> = Vec::new();
         #[cfg(executor_mesapy)]

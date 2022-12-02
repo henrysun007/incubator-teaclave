@@ -243,7 +243,7 @@ fn get_report(
         let decoded_cert = percent_encoding::percent_decode_str(cert_str).decode_utf8()?;
         let certs = rustls_pemfile::certs(&mut decoded_cert.as_bytes())
             .map_err(|_| anyhow!("pemfile error"))?;
-        certs.iter().map(|c| c.clone()).collect()
+        certs.to_vec()
     };
 
     debug!("return_report");

@@ -40,7 +40,7 @@ fn main() {
     let c = Command::new("cargo")
         .env("CARGO_ENCODED_RUSTFLAGS", "")
         .current_dir(&unix_toml_dir)
-        .args(&[
+        .args([
             "run",
             "--target-dir",
             &target_dir.to_string_lossy(),

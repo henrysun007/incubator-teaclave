@@ -16,7 +16,6 @@
 // under the License.
 
 #![allow(clippy::nonstandard_macro_braces)]
-#![allow(clippy::unknown_clippy_lints)]
 
 use std::fmt;
 

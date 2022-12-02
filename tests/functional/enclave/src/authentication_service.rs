@@ -165,7 +165,7 @@ fn test_authenticate_fail() {
     let request = UserAuthenticateRequest::new(credential);
     let response_result = internal_client.user_authenticate(request);
     debug!("{:?}", response_result);
-    assert!(!response_result.is_ok());
+    assert!(response_result.is_err());
 }
 
 #[test_case]

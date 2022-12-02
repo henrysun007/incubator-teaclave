@@ -54,11 +54,7 @@ fn main() {
     };
 
     // Use the offline flag when building within Teaclave's build system.
-    let _offline = if env::var("MT_SGXAPP_TOML_DIR").is_ok() {
-        true
-    } else {
-        false
-    };
+    let _offline = env::var("MT_SGXAPP_TOML_DIR").is_ok();
 
     let proto_files = [
         "services/proto/src/proto/teaclave_access_control_service.proto",
@@ -72,7 +68,7 @@ fn main() {
     let mut c = Command::new("cargo");
     c.current_dir(&current_dir)
         .env("CARGO_ENCODED_RUSTFLAGS", "");
-    c.args(&[
+    c.args([
         "run",
         "--target-dir",
         &target_dir.to_string_lossy(),
@@ -80,8 +76,8 @@ fn main() {
         "services/proto/proto_gen/Cargo.toml",
     ]);
 
-    c.args(&["--", "-i", "services/proto/src/proto", "-d", &out_dir, "-p"])
-        .args(&proto_files);
+    c.args(["--", "-i", "services/proto/src/proto", "-d", &out_dir, "-p"])
+        .args(proto_files);
     let output = c.output().expect("Generate proto failed");
     if !output.status.success() {
         panic!(

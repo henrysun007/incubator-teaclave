@@ -46,7 +46,7 @@ fn start_service(config: &RuntimeConfig) -> Result<()> {
     info!("Starting FrontEnd ...");
 
     let listen_address = config.api_endpoints.frontend.listen_address;
-    let attestation_config = AttestationConfig::from_teaclave_config(&config)?;
+    let attestation_config = AttestationConfig::from_teaclave_config(config)?;
     let attested_tls_config = RemoteAttestation::new(attestation_config)
         .generate_and_endorse()?
         .attested_tls_config()

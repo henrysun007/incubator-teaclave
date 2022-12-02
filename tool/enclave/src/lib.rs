@@ -51,7 +51,7 @@ fn attestation(raw_json_input: &RawJsonInput) -> anyhow::Result<()> {
         let quote_encoded = attn_report["isvEnclaveQuoteBody"]
             .as_str()
             .ok_or_else(|| anyhow::anyhow!("report error"))?;
-        let quote_raw = base64::decode(&quote_encoded.as_bytes())?;
+        let quote_raw = base64::decode(quote_encoded.as_bytes())?;
         SgxQuote::parse_from(quote_raw.as_slice())?
     };
     println!("Remote Attestation Report:");

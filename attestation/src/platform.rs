@@ -151,8 +151,7 @@ pub(crate) fn get_sgx_quote(ak_id: &AttKeyId, report: Report) -> Result<Vec<u8>>
     debug!("sgx self target");
     // Provide the target information of ourselves so that we can verify the QE report
     // returned with the quote
-    let tmp_target_info =
-        TargetInfo::for_self().map_err(|e| PlatformError::GetSelfTargetInfoError(e))?;
+    let tmp_target_info = TargetInfo::for_self().map_err(PlatformError::GetSelfTargetInfoError)?;
 
     qe_report_info.app_enclave_target_info = tmp_target_info;
 

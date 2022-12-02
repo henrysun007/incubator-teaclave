@@ -450,15 +450,19 @@ pub mod tests {
     use super::*;
 
     pub fn test_authorize_platform_admin() {
-        let mut claims = UserAuthClaims::default();
-        claims.role = "PlatformAdmin".to_string();
+        let claims = teaclave_types::UserAuthClaims {
+            role: "PlatformAdmin".to_string(),
+            ..Default::default()
+        };
         let result = authorize(&claims, Endpoints::GetFunction);
         assert!(result);
     }
 
     pub fn test_authorize_function_owner() {
-        let mut claims = UserAuthClaims::default();
-        claims.role = "FunctionOwner".to_string();
+        let claims = teaclave_types::UserAuthClaims {
+            role: "FunctionOwner".to_string(),
+            ..Default::default()
+        };
         let result = authorize(&claims, Endpoints::GetFunction);
         assert!(result);
         let result = authorize(&claims, Endpoints::RegisterFunction);
@@ -470,15 +474,19 @@ pub mod tests {
     }
 
     pub fn test_authorize_data_owner() {
-        let mut claims = UserAuthClaims::default();
-        claims.role = "DataOwnerManager-Attribute".to_string();
+        let claims = teaclave_types::UserAuthClaims {
+            role: "DataOwnerManager-Attribute".to_string(),
+            ..Default::default()
+        };
         let result = authorize(&claims, Endpoints::GetFunction);
         assert!(result);
         let result = authorize(&claims, Endpoints::InvokeTask);
         assert!(result);
 
-        let mut claims = UserAuthClaims::default();
-        claims.role = "DataOwner-Attribute".to_string();
+        let claims = teaclave_types::UserAuthClaims {
+            role: "DataOwner-Attribute".to_string(),
+            ..Default::default()
+        };
         let result = authorize(&claims, Endpoints::GetFunction);
         assert!(result);
         let result = authorize(&claims, Endpoints::InvokeTask);

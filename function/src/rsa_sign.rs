@@ -108,8 +108,8 @@ pub mod tests {
         let runtime = Box::new(RawIoRuntime::new(input_files, output_files));
 
         let summary = RsaSign::new().run(arguments, runtime).unwrap();
-        let mut expected_string = fs::read_to_string(&expected_output).unwrap();
-        expected_string = expected_string.replace("\n", "");
+        let mut expected_string = fs::read_to_string(expected_output).unwrap();
+        expected_string = expected_string.replace('\n', "");
         assert_eq!(summary, expected_string);
     }
 }

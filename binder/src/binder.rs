@@ -38,9 +38,9 @@ pub struct TeeBinder {
 impl TeeBinder {
     pub fn new(name: &str) -> Result<TeeBinder, TeeBinderError> {
         let enclave = if cfg!(production) {
-            create_sgx_enclave(&name, false)?
+            create_sgx_enclave(name, false)?
         } else {
-            create_sgx_enclave(&name, true)?
+            create_sgx_enclave(name, true)?
         };
         debug!("EnclaveID: {}", enclave.eid());
 

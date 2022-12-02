@@ -77,7 +77,7 @@ impl AttestedTlsConfig {
         let report = match attestation_config {
             AttestationConfig::NoAttestation => EndorsedAttestationReport::default(),
             AttestationConfig::WithAttestation(config) => {
-                EndorsedAttestationReport::new(&config, key_pair.pub_k())?
+                EndorsedAttestationReport::new(config, key_pair.pub_k())?
             }
         };
 

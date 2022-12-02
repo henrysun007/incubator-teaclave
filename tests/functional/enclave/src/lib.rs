@@ -48,7 +48,7 @@ fn handle_run_test(input: &RunTestInput) -> TeeServiceResult<RunTestOutput> {
         run_inventory_tests!(|s: &str| input.test_names.iter().any(|t| s.contains(t)))
     };
 
-    assert_eq!(ret, true);
+    assert!(ret);
     Ok(RunTestOutput)
 }
 

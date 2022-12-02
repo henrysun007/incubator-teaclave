@@ -47,7 +47,7 @@ fn start_service(config: &RuntimeConfig) -> Result<()> {
     info!("Starting Scheduler...");
 
     let listen_address = config.internal_endpoints.scheduler.listen_address;
-    let attestation_config = AttestationConfig::from_teaclave_config(&config)?;
+    let attestation_config = AttestationConfig::from_teaclave_config(config)?;
     let attested_tls_config = RemoteAttestation::new(attestation_config)
         .generate_and_endorse()?
         .attested_tls_config()
@@ -83,7 +83,7 @@ fn start_service(config: &RuntimeConfig) -> Result<()> {
 
     let storage_service_address = &config.internal_endpoints.storage.advertised_address;
     let storage_service_endpoint = create_trusted_storage_endpoint(
-        &storage_service_address,
+        storage_service_address,
         &enclave_info,
         AS_ROOT_CA_CERT,
         verifier::universal_quote_verifier,

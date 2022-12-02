@@ -134,12 +134,10 @@ impl EnclaveInfo {
     }
 
     pub fn get_enclave_attr(&self, service_name: &str) -> Option<EnclaveAttr> {
-        if let Some(measurement) = self.measurements.get(service_name) {
-            Some(EnclaveAttr {
+        self.measurements
+            .get(service_name)
+            .map(|measurement| EnclaveAttr {
                 measurement: *measurement,
             })
-        } else {
-            None
-        }
     }
 }

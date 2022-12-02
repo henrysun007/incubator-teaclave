@@ -93,7 +93,7 @@ fn base_dir(config: &RuntimeConfig, sub_name: &str) -> anyhow::Result<PathBuf> {
     // We only create this base directory in test_mode
     // This directory should be mounted in release mode
     #[cfg(test_mode)]
-    std::untrusted::fs::create_dir_all(&fusion_base)?;
+    std::untrusted::fs::create_dir_all(fusion_base)?;
     if !fusion_base.exists() {
         error!(
             "Fusion base directory is not mounted: {}",

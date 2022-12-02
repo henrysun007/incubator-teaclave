@@ -341,8 +341,8 @@ pub mod tests {
 
         assert_eq!(summary, "7");
 
-        let output = fs::read_to_string(&output).unwrap();
-        let expected = fs::read_to_string(&expected_output).unwrap();
+        let output = fs::read_to_string(output).unwrap();
+        let expected = fs::read_to_string(expected_output).unwrap();
         assert_eq!(&output[..], &expected[..]);
     }
 }

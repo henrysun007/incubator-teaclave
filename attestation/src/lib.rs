@@ -20,7 +20,6 @@
 //! Service is used for RA.
 
 #![allow(clippy::nonstandard_macro_braces)]
-#![allow(clippy::unknown_clippy_lints)]
 
 extern crate sgx_types;
 
@@ -78,6 +77,7 @@ impl AttestationAlgorithm {
 
 /// Attestation Service Configuration
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct AttestationServiceConfig {
     /// Algorithm to use
     algo: AttestationAlgorithm,
