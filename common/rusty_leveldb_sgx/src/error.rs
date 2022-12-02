@@ -47,7 +47,7 @@ impl Default for Status {
 
 impl Display for Status {
     fn fmt(&self, fmt: &mut Formatter) -> result::Result<(), fmt::Error> {
-        fmt.write_str(self.to_string().as_str())
+        fmt.write_str(&self.err)
     }
 }
 

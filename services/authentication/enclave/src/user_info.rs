@@ -84,7 +84,7 @@ impl UserInfo {
             iss,
             exp,
         };
-        let header = jsonwebtoken::Header {
+        let header = jwt::Header {
             alg: JWT_ALG,
             ..Default::default()
         };

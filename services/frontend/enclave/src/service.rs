@@ -450,7 +450,7 @@ pub mod tests {
     use super::*;
 
     pub fn test_authorize_platform_admin() {
-        let claims = teaclave_types::UserAuthClaims {
+        let claims = UserAuthClaims {
             role: "PlatformAdmin".to_string(),
             ..Default::default()
         };
@@ -459,7 +459,7 @@ pub mod tests {
     }
 
     pub fn test_authorize_function_owner() {
-        let claims = teaclave_types::UserAuthClaims {
+        let claims = UserAuthClaims {
             role: "FunctionOwner".to_string(),
             ..Default::default()
         };
@@ -474,7 +474,7 @@ pub mod tests {
     }
 
     pub fn test_authorize_data_owner() {
-        let claims = teaclave_types::UserAuthClaims {
+        let claims = UserAuthClaims {
             role: "DataOwnerManager-Attribute".to_string(),
             ..Default::default()
         };
@@ -483,7 +483,7 @@ pub mod tests {
         let result = authorize(&claims, Endpoints::InvokeTask);
         assert!(result);
 
-        let claims = teaclave_types::UserAuthClaims {
+        let claims = UserAuthClaims {
             role: "DataOwner-Attribute".to_string(),
             ..Default::default()
         };

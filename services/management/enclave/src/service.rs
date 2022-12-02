@@ -256,7 +256,7 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         self.write_to_db(&function)?;
 
-        let mut u = teaclave_types::User {
+        let mut u = User {
             id: user_id,
             ..Default::default()
         };
@@ -278,7 +278,7 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         // Update allowed function list for users
         for user_id in &function.user_allowlist {
-            let mut u = teaclave_types::User {
+            let mut u = User {
                 id: user_id.into(),
                 ..Default::default()
             };
@@ -409,7 +409,7 @@ impl TeaclaveManagement for TeaclaveManagementService {
         let func_id = function.external_id().to_string();
 
         // Updated function owner
-        let u = teaclave_types::User {
+        let u = User {
             id: function.owner.clone(),
             ..Default::default()
         };
@@ -425,7 +425,7 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         // Update allowed function list for users
         for user_id in &function.user_allowlist {
-            let u = teaclave_types::User {
+            let u = User {
                 id: user_id.into(),
                 ..Default::default()
             };
@@ -467,7 +467,7 @@ impl TeaclaveManagement for TeaclaveManagementService {
             request_user_id = s.into();
         }
 
-        let u = teaclave_types::User {
+        let u = User {
             id: request_user_id,
             ..Default::default()
         };
