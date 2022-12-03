@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![feature(proc_macro_hygiene, decl_macro)]
-
 #[macro_use]
 extern crate rocket;
 #[macro_use]
@@ -34,38 +32,25 @@ extern crate uuid;
 use chrono::prelude::*;
 use rand::{RngCore, SeedableRng};
 use ring::signature;
-use rocket::{http, response};
+use rocket::{data::ToByteUnit, http, response, Config};
+use sgx_types::error::Quote3Error;
 use sgx_types::types::*;
 
 lazy_static! {
     static ref SIGNER: signature::RsaKeyPair = {
-        let r = rocket::ignite();
-        let key_path: String = r
-            .config()
-            .extras
-            .get("attestation")
-            .expect("attestation config")
-            .get("key")
-            .expect("key")
-            .as_str()
-            .unwrap()
-            .to_string();
+        let figment = Config::figment();
+        let key_path = figment
+            .extract_inner::<String>("attestation.key")
+            .expect("key");
         let key = std::fs::read_to_string(key_path).unwrap();
         let der = pem::parse(key).unwrap().contents;
         signature::RsaKeyPair::from_pkcs8(&der).unwrap()
     };
     static ref REPORT_SIGNING_CERT: String = {
-        let r = rocket::ignite();
-        let cert_path: String = r
-            .config()
-            .extras
-            .get("attestation")
-            .expect("attestation config")
-            .get("certs")
-            .expect("certs")
-            .as_str()
-            .unwrap()
-            .to_string();
+        let figment = Config::figment();
+        let cert_path = figment
+            .extract_inner::<String>("attestation.certs")
+            .expect("certs");
         std::fs::read_to_string(cert_path).unwrap()
     };
 }
@@ -110,7 +95,7 @@ impl QuoteVerificationResponse {
 
 /// Convert SGX QL QV Result to str, try best to match the string defined in IAS
 /// quote status APIs.
-fn to_report(rst: QlQvResult) -> &'static str {
+fn to_report(rst: &QlQvResult) -> &str {
     use QlQvResult::*;
     match rst {
         Max => panic!(),
@@ -124,15 +109,15 @@ impl QuoteVerificationResult {
             "id": uuid::Uuid::new_v4().to_simple().to_string(),
             "version": 4,
             "timestamp": Utc::now().format("%Y-%m-%dT%H:%M:%S%.f").to_string(),
-            "isvEnclaveQuoteStatus": to_report(self.quote_status),
+            "isvEnclaveQuoteStatus": to_report(&self.quote_status),
             "isvEnclaveQuoteBody": self.isv_enclave_quote,
         })
         .to_string()
     }
 }
 
-impl<'r> response::Responder<'r> for QuoteVerificationResponse {
-    fn respond_to(self, _: &rocket::Request) -> response::Result<'r> {
+impl<'r> response::Responder<'r, 'static> for QuoteVerificationResponse {
+    fn respond_to(self, _: &rocket::Request) -> response::Result<'static> {
         match self {
             Self::BadRequest => response::Result::Err(http::Status::BadRequest),
             Self::InternalError => response::Result::Err(http::Status::InternalServerError),
@@ -150,7 +135,10 @@ impl<'r> response::Responder<'r> for QuoteVerificationResponse {
                     .unwrap();
                 response::Response::build()
                     .header(http::ContentType::JSON)
-                    .header(http::hyper::header::Connection::close())
+                    .header(http::Header::new(
+                        http::hyper::header::CONNECTION.as_str(),
+                        "close",
+                    ))
                     .raw_header(
                         "X-DCAPReport-Signing-Certificate",
                         percent_encoding::utf8_percent_encode(
@@ -159,7 +147,7 @@ impl<'r> response::Responder<'r> for QuoteVerificationResponse {
                         ),
                     )
                     .raw_header("X-DCAPReport-Signature", base64::encode(&signature))
-                    .sized_body(std::io::Cursor::new(payload))
+                    .sized_body(payload.len(), std::io::Cursor::new(payload))
                     .ok()
             }
         }
@@ -175,21 +163,25 @@ lazy_static! {
     format = "application/json",
     data = "<request>"
 )]
-fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
-    let mut req = Vec::<u8>::with_capacity(512);
-    request.stream_to(&mut req).unwrap();
+async fn verify_quote(request: rocket::Data<'_>) -> QuoteVerificationResponse {
+    let limit: usize = 512;
+    let stream = request.open(limit.bytes());
+
+    let mut req = Vec::<u8>::with_capacity(limit);
+    stream.stream_to(&mut req).await.unwrap();
+
     let v = match serde_json::from_slice::<serde_json::Value>(&req) {
         Ok(v) => v,
         Err(_) => return QuoteVerificationResponse::BadRequest,
     };
 
     if let serde_json::Value::String(base64_quote) = &v["isvEnclaveQuote"] {
-        let quote = match base64::decode(&base64_quote) {
+        let quote = match base64::decode(base64_quote) {
             Ok(v) => v,
             Err(_) => return QuoteVerificationResponse::BadRequest,
         };
         let mut collateral_exp_status = 1u32;
-        let mut quote_verification_result = QlQvResult::SGX_QL_QV_RESULT_UNSPECIFIED;
+        let mut quote_verification_result = QlQvResult::Unspecified;
         let mut qve_report_info = QlQeReportInfo::default();
 
         let mut nonce = QuoteNonce::default();
@@ -225,9 +217,9 @@ fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
             return QuoteVerificationResponse::BadRequest;
         }
 
-        let sha256 = sgx_crypto::sha::Sha256::new().unwrap();
+        let mut sha256 = sgx_crypto::sha::Sha256::new().unwrap();
         sha256.update(&nonce.rand).unwrap();
-        sha256.update(&quote.as_slice()).unwrap();
+        sha256.update(quote.as_slice()).unwrap();
         sha256.update(&expiration_check_date).unwrap();
         sha256.update(&collateral_exp_status).unwrap();
         sha256.update(&(quote_verification_result as u32)).unwrap();
@@ -250,6 +242,7 @@ fn verify_quote(request: rocket::Data) -> QuoteVerificationResponse {
     }
 }
 
-fn main() {
-    rocket::ignite().mount("/", routes![verify_quote]).launch();
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes![verify_quote])
 }
