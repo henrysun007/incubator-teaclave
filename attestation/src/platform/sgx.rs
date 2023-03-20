@@ -17,7 +17,9 @@
 
 //! This module provides SGX platform related functions like getting local
 //! report and transform into a remotely verifiable quote.
+#![cfg(feature = "mesalock_sgx")]
 
+use super::{PlatformError, Result};
 use log::debug;
 use sgx_crypto::ecc::EcPublicKey;
 use sgx_crypto::sha::Sha256;
@@ -26,33 +28,6 @@ use sgx_tse::{EnclaveReport, EnclaveTarget};
 use sgx_types::error::SgxStatus;
 use sgx_types::error::SgxStatus::Success;
 use sgx_types::types::*;
-
-type Result<T> = std::result::Result<T, PlatformError>;
-
-#[derive(thiserror::Error, Debug)]
-pub enum PlatformError {
-    #[error("Failed to call {0}: {1}")]
-    OCallError(String, SgxStatus),
-    #[error("Failed to initialize quote : {0}")]
-    InitQuoteError(SgxStatus),
-    #[error("Failed to create the report of the enclave: {0}")]
-    CreateReportError(SgxStatus),
-    #[error("Failed to get target info of this enclave: {0}")]
-    GetSelfTargetInfoError(SgxStatus),
-    #[error("Failed to get quote: {0}")]
-    GetQuoteError(SgxStatus),
-    #[error("Failed to verify quote: {0}")]
-    VerifyReportError(SgxStatus),
-    #[error(
-        "Replay attack on report: quote_nonce.rand {0:?},
-        qe_report.body.report_data.d[..32] {1:?}"
-    )]
-    ReportReplay(Vec<u8>, Vec<u8>),
-    #[error("Failed to use SGX rng to generate random number: {0}")]
-    SgxRngError(std::io::Error),
-    #[error("Other SGX platform error: {0}")]
-    Others(SgxStatus),
-}
 
 extern "C" {
     /// Ocall to use sgx_init_quote_ex to init the quote and key_id.

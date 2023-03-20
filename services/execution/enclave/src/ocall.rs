@@ -17,23 +17,35 @@
 
 use anyhow::ensure;
 use anyhow::Result;
+#[cfg(feature = "mesalock_sgx")]
 use sgx_types::error::SgxStatus;
 use teaclave_types::FileAgentRequest;
 
+#[cfg(feature = "mesalock_sgx")]
 extern "C" {
     fn ocall_handle_file_request(p_retval: *mut u32, in_buf: *const u8, in_len: u32) -> SgxStatus;
 }
+#[cfg(not(feature = "mesalock_sgx"))]
+use teaclave_file_agent::ocall_handle_file_request;
 
-#[allow(dead_code)]
+#[cfg(feature = "mesalock_sgx")]
 pub(crate) fn handle_file_request(request: FileAgentRequest) -> Result<()> {
     let mut rt: u32 = 2;
     let bytes = serde_json::to_vec(&request)?;
     let buf_len = bytes.len();
     let res =
         unsafe { ocall_handle_file_request(&mut rt as _, bytes.as_ptr() as _, buf_len as u32) };
-
     ensure!(res == SgxStatus::Success, "ocall sgx_error = {:?}", res);
     ensure!(rt == 0, "ocall error = {:?}", rt);
+    Ok(())
+}
+
+#[cfg(not(feature = "mesalock_sgx"))]
+pub(crate) fn handle_file_request(request: FileAgentRequest) -> Result<()> {
+    let bytes = serde_json::to_vec(&request)?;
+    let buf_len = bytes.len();
+    let rt = ocall_handle_file_request(bytes.as_ptr() as _, buf_len as u32);
+    ensure!(rt == 0, "ocall_handle_file_request error = {:?}", rt);
     Ok(())
 }
 

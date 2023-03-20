@@ -52,9 +52,13 @@ impl TeaclaveExecutionService {
         let channel = loop {
             match scheduler_service_endpoint.connect() {
                 Ok(channel) => break channel,
-                Err(_) => {
+                Err(e) => {
                     anyhow::ensure!(i < 10, "failed to connect to scheduler service");
-                    log::debug!("Failed to connect to scheduler service, retry {}", i);
+                    log::debug!(
+                        "Failed to connect to scheduler service, retry {},{:?}",
+                        i,
+                        e
+                    );
                     i += 1;
                 }
             }

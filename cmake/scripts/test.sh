@@ -272,6 +272,53 @@ run_examples() {
   cleanup
 }
 
+run_libos_examples() {
+  trap cleanup INT TERM ERR
+
+  echo_title "libos examples"
+  if [ "${SGX_MODE}" = "HW" ]; then
+      echo "Don't support running libos examples sgx HW mode currently."
+      exit
+  fi
+  mkdir -p /tmp/fusion_data
+
+  pushd ${TEACLAVE_SERVICE_INSTALL_DIR}
+  ./teaclave_authentication_service &
+  ./teaclave_storage_service &
+  wait_port 7776 17776 17778 # wait for authentication and storage service
+  ./teaclave_management_service &
+  ./teaclave_scheduler_service &
+  wait_port 17777 17780 # wait for management service and scheduler_service
+  ./teaclave_access_control_service &
+  ./teaclave_frontend_service &
+  wait_port 17779 7777 # wait for other services
+
+  start_storage_server
+
+  pushd ${TEACLAVE_BIN_INSTALL_DIR}
+  cp -rf ${TEACLAVE_SERVICE_INSTALL_DIR}/auditors .
+  cp -f ${TEACLAVE_SERVICE_INSTALL_DIR}/runtime.config.toml .
+  cp -f ${TEACLAVE_SERVICE_INSTALL_DIR}/enclave_info.toml .
+  # Run tests of libos service separately
+  ./teaclave_execution_service_libos &
+
+  pushd ${TEACLAVE_PROJECT_ROOT}/examples/python
+  export PYTHONPATH=${TEACLAVE_PROJECT_ROOT}/sdk/python
+  python3 builtin_echo.py
+  python3 builtin_gbdt_train.py
+  python3 builtin_online_decrypt.py
+  python3 builtin_private_join_and_compute.py
+  python3 builtin_ordered_set_intersect.py
+  python3 builtin_rsa_sign.py
+  python3 builtin_face_detection.py
+  python3 builtin_password_check.py
+  popd
+  popd
+  
+  # kill all background services
+  cleanup
+}
+
 run_cancel_test() {
   trap cleanup INT TERM ERR
 
@@ -356,6 +403,9 @@ case "$1" in
     "cancel")
         run_cancel_test
         ;;
+    "libos")
+        run_libos_examples
+        ;;
     *)
         run_unit_tests
         run_integration_tests
@@ -363,5 +413,6 @@ case "$1" in
         run_sdk_tests
         run_examples
         run_cancel_test
+        run_libos_examples
         ;;
 esac

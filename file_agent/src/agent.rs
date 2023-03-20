@@ -96,6 +96,7 @@ async fn handle_download(
         "https" | "http" => {
             download_remote_input_to_file(remote, dst).await?;
         }
+        #[cfg(not(feature = "libos"))]
         "file" => {
             let src = remote
                 .to_file_path()
