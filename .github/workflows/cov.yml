@@ -1,0 +1,34 @@
+on: ["push", "pull_request"]
+
+name: coverage-ubuntu-2004
+
+jobs:
+  cov:
+    runs-on: ubuntu-20.04
+    container: teaclave/teaclave-build-ubuntu-2004-sgx-2.17.1:0.2.0
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+            cp /root/.bashrc $HOME/.bashrc
+            ln -sf /root/.rustup ~/.rustup
+            ln -sf /root/.cargo ~/.cargo
+            git config --global --add safe.directory /__w/incubator-teaclave/incubator-teaclave
+            . /opt/sgxsdk/environment && . ~/.cargo/env
+            mkdir -p build && cd build &&
+            cmake -DCMAKE_BUILD_TYPE=Debug -DSGX_SIM_MODE=ON -DTEST_MODE=ON -DCOV=ON .. &&
+            make -j
+      - name: Run tests and examples
+        run: |
+          export AS_SPID="00000000000000000000000000000000" &&
+          export AS_KEY="00000000000000000000000000000000" &&
+          export AS_ALGO="sgx_epid" &&
+          export AS_URL="https://api.trustedservices.intel.com:443" &&
+          . ~/.cargo/env &&
+          cd build &&
+          make run-tests && make cov
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+            path-to-lcov: build/cov.info 
