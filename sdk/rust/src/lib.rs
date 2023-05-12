@@ -25,7 +25,6 @@ use teaclave_proto::teaclave_frontend_service::TeaclaveFrontendClient;
 use teaclave_proto::teaclave_frontend_service_proto as frontend_proto;
 use teaclave_rpc::config::SgxTrustedTlsClientConfig;
 use teaclave_rpc::endpoint::Endpoint;
-use teaclave_types::FileAuthTag;
 use url::Url;
 
 pub use teaclave_proto::teaclave_authentication_service::{
@@ -37,13 +36,13 @@ pub use teaclave_proto::teaclave_frontend_service::{
     CancelTaskRequest, CancelTaskResponse, CreateTaskRequest, CreateTaskResponse,
     GetFunctionRequest, GetFunctionResponse, GetFunctionUsageStatsRequest,
     GetFunctionUsageStatsResponse, GetTaskRequest, GetTaskResponse, InvokeTaskRequest,
-    InvokeTaskResponse, RegisterFunctionRequest, RegisterFunctionRequestBuilder,
-    RegisterFunctionResponse, RegisterInputFileRequest, RegisterInputFileResponse,
-    RegisterOutputFileRequest, RegisterOutputFileResponse,
+    InvokeTaskResponse, QueryAuditLogsRequest, QueryAuditLogsResponse, RegisterFunctionRequest,
+    RegisterFunctionRequestBuilder, RegisterFunctionResponse, RegisterInputFileRequest,
+    RegisterInputFileResponse, RegisterOutputFileRequest, RegisterOutputFileResponse,
 };
 pub use teaclave_types::{
-    EnclaveInfo, Executor, FileCrypto, FunctionArgument, FunctionInput, FunctionOutput,
-    FunctionUsage, TaskResult,
+    EnclaveInfo, Entry, Executor, FileAuthTag, FileCrypto, FunctionArgument, FunctionInput,
+    FunctionOutput, FunctionUsage, TaskResult,
 };
 
 pub mod bindings;
@@ -574,6 +573,33 @@ impl FrontendClient {
         let _ = self.cancel_task_with_request(request)?;
 
         Ok(())
+    }
+
+    pub fn query_audit_logs(&mut self, query: String, limit: usize) -> Result<Vec<Entry>> {
+        let request = QueryAuditLogsRequest::new(query, limit);
+        let response = self.query_audit_logs_with_request(request)?;
+
+        Ok(response.logs)
+    }
+
+    pub fn query_audit_logs_serialized(&mut self, serialized_request: &str) -> Result<String> {
+        let request: frontend_proto::QueryAuditLogsRequest =
+            serde_json::from_str(serialized_request)?;
+        let response: frontend_proto::QueryAuditLogsResponse = self
+            .query_audit_logs_with_request(request.try_into()?)?
+            .into();
+        let serialized_response = serde_json::to_string(&response)?;
+
+        Ok(serialized_response)
+    }
+
+    pub fn query_audit_logs_with_request(
+        &mut self,
+        request: QueryAuditLogsRequest,
+    ) -> Result<QueryAuditLogsResponse> {
+        let response = self.api_client.query_audit_logs(request)?;
+
+        Ok(response)
     }
 }
 

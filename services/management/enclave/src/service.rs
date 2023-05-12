@@ -15,7 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::ManagementServiceError;
+use super::*;
+
+use audit::Auditor;
+use error::ManagementServiceError;
+
 use anyhow::anyhow;
 use std::convert::TryInto;
 use std::sync::{Arc, Mutex};
@@ -26,14 +30,17 @@ use teaclave_proto::teaclave_frontend_service::{
     GetFunctionRequest, GetFunctionResponse, GetFunctionUsageStatsRequest,
     GetFunctionUsageStatsResponse, GetInputFileRequest, GetInputFileResponse, GetOutputFileRequest,
     GetOutputFileResponse, GetTaskRequest, GetTaskResponse, InvokeTaskRequest, InvokeTaskResponse,
-    ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest, RegisterFunctionResponse,
-    RegisterFusionOutputRequest, RegisterFusionOutputResponse, RegisterInputFileRequest,
-    RegisterInputFileResponse, RegisterInputFromOutputRequest, RegisterInputFromOutputResponse,
-    RegisterOutputFileRequest, RegisterOutputFileResponse, UpdateFunctionRequest,
-    UpdateFunctionResponse, UpdateInputFileRequest, UpdateInputFileResponse,
-    UpdateOutputFileRequest, UpdateOutputFileResponse,
+    ListFunctionsRequest, ListFunctionsResponse, QueryAuditLogsRequest, QueryAuditLogsResponse,
+    RegisterFunctionRequest, RegisterFunctionResponse, RegisterFusionOutputRequest,
+    RegisterFusionOutputResponse, RegisterInputFileRequest, RegisterInputFileResponse,
+    RegisterInputFromOutputRequest, RegisterInputFromOutputResponse, RegisterOutputFileRequest,
+    RegisterOutputFileResponse, UpdateFunctionRequest, UpdateFunctionResponse,
+    UpdateInputFileRequest, UpdateInputFileResponse, UpdateOutputFileRequest,
+    UpdateOutputFileResponse,
 };
-use teaclave_proto::teaclave_management_service::TeaclaveManagement;
+use teaclave_proto::teaclave_management_service::{
+    SaveLogsRequest, SaveLogsResponse, TeaclaveManagement,
+};
 use teaclave_proto::teaclave_storage_service::{
     DeleteRequest, EnqueueRequest, GetKeysByPrefixRequest, GetRequest, PutRequest,
     TeaclaveStorageClient,
@@ -53,6 +60,7 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub(crate) struct TeaclaveManagementService {
     storage_client: Arc<Mutex<TeaclaveStorageClient>>,
+    auditor: audit::Auditor,
 }
 
 impl TeaclaveManagement for TeaclaveManagementService {
@@ -827,6 +835,46 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         Ok(CancelTaskResponse)
     }
+
+    // access_control: none
+    fn save_logs(
+        &self,
+        request: Request<SaveLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<SaveLogsResponse> {
+        let request = request.message;
+
+        self.auditor.add_logs(request.logs).map_err(|e| {
+            let err_msg = format!("failed to save logs {:?}", e);
+            ManagementServiceError::AuditError(err_msg)
+        })?;
+
+        Ok(SaveLogsResponse)
+    }
+
+    // access_control: only
+    // user_role == admin
+    fn query_audit_logs(
+        &self,
+        request: Request<QueryAuditLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<QueryAuditLogsResponse> {
+        let role = get_request_role(&request)?;
+        ensure!(
+            role == UserRole::PlatformAdmin,
+            ManagementServiceError::PermissionDenied
+        );
+
+        let request = request.message;
+        let logs = self
+            .auditor
+            .query_logs(&request.query, request.limit)
+            .map_err(|e| {
+                let err_msg = format!("failed to query logs {:?}", e);
+                ManagementServiceError::AuditError(err_msg)
+            })?;
+
+        let response = QueryAuditLogsResponse::new(logs);
+        Ok(response)
+    }
 }
 
 impl TeaclaveManagementService {
@@ -844,7 +892,11 @@ impl TeaclaveManagementService {
             std::thread::sleep(std::time::Duration::from_secs(3));
         };
         let storage_client = Arc::new(Mutex::new(TeaclaveStorageClient::new(channel)?));
-        let service = Self { storage_client };
+        let auditor = Auditor::try_new(storage_client.clone())?;
+        let service = Self {
+            storage_client,
+            auditor,
+        };
 
         #[cfg(test_mode)]
         service.add_mock_data()?;

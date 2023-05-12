@@ -36,6 +36,7 @@ use teaclave_rpc::server::SgxTrustedTlsServer;
 use teaclave_service_enclave_utils::{create_trusted_storage_endpoint, ServiceEnclave};
 use teaclave_types::{EnclaveInfo, TeeServiceError, TeeServiceResult};
 
+mod audit;
 mod error;
 mod service;
 
@@ -143,6 +144,7 @@ pub mod tests {
             service::tests::check_function_quota,
             service::tests::handle_task,
             service::tests::handle_staged_task,
+            audit::tests::test_entry_doc_conversion,
         )
     }
 }

@@ -18,7 +18,9 @@
 #[macro_use]
 extern crate log;
 extern crate sgx_types;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
+
+use std::sync::{Arc, Mutex};
 
 use teaclave_attestation::verifier;
 use teaclave_attestation::{AttestationConfig, RemoteAttestation};
@@ -29,9 +31,11 @@ use teaclave_binder::proto::{
 use teaclave_binder::{handle_ecall, register_ecall_handler};
 use teaclave_config::build::AS_ROOT_CA_CERT;
 use teaclave_config::RuntimeConfig;
+use teaclave_proto::teaclave_authentication_service::TeaclaveAuthenticationInternalClient;
 use teaclave_proto::teaclave_frontend_service::{
     TeaclaveFrontendRequest, TeaclaveFrontendResponse,
 };
+use teaclave_proto::teaclave_management_service::TeaclaveManagementClient;
 use teaclave_rpc::config::SgxTrustedTlsServerConfig;
 use teaclave_rpc::server::SgxTrustedTlsServer;
 use teaclave_service_enclave_utils::{
@@ -39,6 +43,7 @@ use teaclave_service_enclave_utils::{
 };
 use teaclave_types::{TeeServiceError, TeeServiceResult};
 
+mod audit;
 mod error;
 mod service;
 
@@ -72,7 +77,23 @@ fn start_service(config: &RuntimeConfig) -> Result<()> {
         attested_tls_config.clone(),
     )?;
 
-    info!(" Starting FrontEnd: setup authentication endpoint finished ...");
+    let mut i = 0;
+    let authentication_channel = loop {
+        match authentication_service_endpoint.connect() {
+            Ok(channel) => break channel,
+            Err(_) => {
+                ensure!(i < 10, "failed to connect to authentication service");
+                log::warn!("Failed to connect to authentication service, retry {}", i);
+                i += 1;
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_secs(3));
+    };
+    let authentication_client = Arc::new(Mutex::new(TeaclaveAuthenticationInternalClient::new(
+        authentication_channel,
+    )?));
+
+    info!(" Starting FrontEnd: setup authentication client finished ...");
 
     let management_service_endpoint = create_trusted_management_endpoint(
         &config.internal_endpoints.management.advertised_address,
@@ -82,11 +103,36 @@ fn start_service(config: &RuntimeConfig) -> Result<()> {
         attested_tls_config,
     )?;
 
-    info!(" Starting FrontEnd: setup management endpoint finished ...");
+    let mut i = 0;
+    let management_channel = loop {
+        match management_service_endpoint.connect() {
+            Ok(channel) => break channel,
+            Err(_) => {
+                ensure!(i < 10, "failed to connect to management service");
+                log::warn!("Failed to connect to management service, retry {}", i);
+                i += 1;
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_secs(3));
+    };
+    let management_client = Arc::new(Mutex::new(TeaclaveManagementClient::new(
+        management_channel,
+    )?));
+
+    info!(" Starting FrontEnd: setup management client finished ...");
+
+    let log_buffer = Arc::new(Mutex::new(Vec::new()));
+
+    let audit_agent = audit::AuditAgent::new(management_client.clone(), log_buffer.clone());
+
+    let agent_handle = std::thread::spawn(move || {
+        audit_agent.run();
+    });
 
     let service = service::TeaclaveFrontendService::new(
-        authentication_service_endpoint,
-        management_service_endpoint,
+        authentication_client,
+        management_client,
+        log_buffer,
     )?;
 
     info!(" Starting FrontEnd: start listening ...");
@@ -96,6 +142,9 @@ fn start_service(config: &RuntimeConfig) -> Result<()> {
             error!("Service exit, error: {}.", e);
         }
     }
+
+    agent_handle.join().unwrap();
+
     Ok(())
 }
 

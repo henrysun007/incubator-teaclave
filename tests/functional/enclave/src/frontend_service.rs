@@ -174,6 +174,42 @@ fn test_register_function() {
     let request = RegisterFunctionRequest::default();
     let response = unauthorized_client().register_function(request);
     assert!(response.is_err());
+
+    // Wait for the logs to be sent to the auditor
+    std::thread::sleep(std::time::Duration::from_secs(35));
+
+    let function_name = "register_function";
+
+    // query by user name
+    let request = QueryAuditLogsRequest::new("user:".to_string() + USERNAME, 100);
+    let response = authorized_client().query_audit_logs(request).unwrap();
+
+    let logs: Vec<_> = response
+        .logs
+        .iter()
+        .filter(|e| e.message() == function_name)
+        .collect();
+    assert_eq!(logs.len(), 1);
+    assert!(logs[0].result());
+
+    // query by function name stored in the message
+    let request = QueryAuditLogsRequest::new("message:".to_string() + function_name, 100);
+    let response = authorized_client().query_audit_logs(request).unwrap();
+    let logs = &response.logs;
+    assert_eq!(logs.len(), 2);
+    assert!(logs[0].user().contains(USERNAME));
+    assert!(logs[0].result());
+
+    assert!(!logs[1].result());
+
+    let request = QueryAuditLogsRequest::new("message:".to_string() + "authenticate", 100);
+    let response = authorized_client().query_audit_logs(request).unwrap();
+    let logs = &response.logs;
+    // "authenticate" message will only show in the entry with false result and empty user
+    for log in logs {
+        assert_eq!(log.user(), "");
+        assert!(!log.result());
+    }
 }
 
 #[test_case]
