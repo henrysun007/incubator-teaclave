@@ -24,6 +24,20 @@ package teaclave_management_service_proto;
 
 import "teaclave_frontend_service.proto";
 
+message Entry {
+    int64 microsecond = 1;
+    bytes ip = 2;
+    string user = 3;
+    string message = 4;
+    bool result = 5;
+}
+
+message SaveLogsRequest {
+    repeated Entry logs = 1;
+}
+
+message SaveLogsResponse { }
+
 service TeaclaveManagement {
   rpc RegisterInputFile (teaclave_frontend_service_proto.RegisterInputFileRequest) returns (teaclave_frontend_service_proto.RegisterInputFileResponse);
   rpc RegisterOutputFile (teaclave_frontend_service_proto.RegisterOutputFileRequest) returns (teaclave_frontend_service_proto.RegisterOutputFileResponse);
@@ -46,4 +60,5 @@ service TeaclaveManagement {
   rpc ApproveTask (teaclave_frontend_service_proto.ApproveTaskRequest) returns (teaclave_frontend_service_proto.ApproveTaskResponse);
   rpc InvokeTask (teaclave_frontend_service_proto.InvokeTaskRequest) returns (teaclave_frontend_service_proto.InvokeTaskResponse);
   rpc CancelTask (teaclave_frontend_service_proto.CancelTaskRequest) returns (teaclave_frontend_service_proto.CancelTaskResponse);
+  rpc SaveLogs (SaveLogsRequest) returns (SaveLogsResponse);
 }

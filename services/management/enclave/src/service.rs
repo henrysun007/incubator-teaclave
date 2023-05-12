@@ -15,7 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::ManagementServiceError;
+use super::*;
+
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use audit::Auditor;
+use error::ManagementServiceError;
+
 use anyhow::anyhow;
 use std::convert::TryInto;
 use std::sync::{Arc, Mutex};
@@ -33,7 +39,9 @@ use teaclave_proto::teaclave_frontend_service::{
     UpdateFunctionResponse, UpdateInputFileRequest, UpdateInputFileResponse,
     UpdateOutputFileRequest, UpdateOutputFileResponse,
 };
-use teaclave_proto::teaclave_management_service::TeaclaveManagement;
+use teaclave_proto::teaclave_management_service::{
+    SaveLogsRequest, SaveLogsResponse, TeaclaveManagement,
+};
 use teaclave_proto::teaclave_storage_service::{
     DeleteRequest, EnqueueRequest, GetKeysByPrefixRequest, GetRequest, PutRequest,
     TeaclaveStorageClient,
@@ -53,6 +61,7 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub(crate) struct TeaclaveManagementService {
     storage_client: Arc<Mutex<TeaclaveStorageClient>>,
+    auditor: audit::Auditor,
 }
 
 impl TeaclaveManagement for TeaclaveManagementService {
@@ -67,10 +76,15 @@ impl TeaclaveManagement for TeaclaveManagementService {
             request.url,
             request.cmac,
             request.crypto_info,
-            vec![user_id],
+            vec![user_id.clone()],
         );
 
         self.write_to_db(&input_file)?;
+
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
 
         let response = RegisterInputFileResponse::new(input_file.external_id());
         Ok(response)
@@ -248,6 +262,11 @@ impl TeaclaveManagement for TeaclaveManagementService {
         request: Request<RegisterFunctionRequest>,
     ) -> TeaclaveServiceResponseResult<RegisterFunctionResponse> {
         let user_id = get_request_user_id(&request)?;
+
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
 
         let function = FunctionBuilder::from(request.message)
             .id(Uuid::new_v4())
@@ -550,6 +569,11 @@ impl TeaclaveManagement for TeaclaveManagementService {
         let user_id = get_request_user_id(&request)?;
         let role = get_request_role(&request)?;
 
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
+
         let request = request.message;
 
         let function: Function = self
@@ -686,6 +710,11 @@ impl TeaclaveManagement for TeaclaveManagementService {
         request: Request<ApproveTaskRequest>,
     ) -> TeaclaveServiceResponseResult<ApproveTaskResponse> {
         let user_id = get_request_user_id(&request)?;
+
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
 
         let request = request.message;
         let ts: TaskState = self
@@ -827,6 +856,21 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         Ok(CancelTaskResponse)
     }
+
+    // access_control: none
+    fn save_logs(
+        &self,
+        request: Request<SaveLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<SaveLogsResponse> {
+        let request = request.message;
+
+        self.auditor.add_logs(request.logs).map_err(|e| {
+            let err_msg = format!("failed to save logs {:?}", e);
+            ManagementServiceError::AuditError(err_msg)
+        })?;
+
+        Ok(SaveLogsResponse)
+    }
 }
 
 impl TeaclaveManagementService {
@@ -844,7 +888,11 @@ impl TeaclaveManagementService {
             std::thread::sleep(std::time::Duration::from_secs(3));
         };
         let storage_client = Arc::new(Mutex::new(TeaclaveStorageClient::new(channel)?));
-        let service = Self { storage_client };
+        let auditor = Auditor::try_new(storage_client.clone())?;
+        let service = Self {
+            storage_client,
+            auditor,
+        };
 
         #[cfg(test_mode)]
         service.add_mock_data()?;
@@ -929,6 +977,14 @@ impl TeaclaveManagementService {
             .enqueue(enqueue_request)
             .map_err(|e| ManagementServiceError::Service(e.into()))?;
         Ok(())
+    }
+
+    pub fn query(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
+        self.auditor.query_logs(query, limit)
+    }
+
+    pub fn add_log(&self, log: Entry) -> Result<()> {
+        self.auditor.add_logs(vec![log])
     }
 
     #[cfg(test_mode)]
