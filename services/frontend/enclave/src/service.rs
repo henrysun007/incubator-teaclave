@@ -97,6 +97,7 @@ macro_rules! authentication_and_forward_to_management {
     }};
 }
 
+// TODO: remove this structure as it is the same with RPC interface
 enum Endpoints {
     RegisterInputFile,
     RegisterOutputFile,

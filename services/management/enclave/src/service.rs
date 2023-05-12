@@ -15,7 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::ManagementServiceError;
+use super::*;
+
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use audit::{Entry, EntryBuilder, LogService};
+use error::ManagementServiceError;
+
 use anyhow::anyhow;
 use std::convert::TryInto;
 use std::sync::{Arc, Mutex};
@@ -53,6 +59,7 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub(crate) struct TeaclaveManagementService {
     storage_client: Arc<Mutex<TeaclaveStorageClient>>,
+    log_service: audit::LogService,
 }
 
 impl TeaclaveManagement for TeaclaveManagementService {
@@ -67,10 +74,21 @@ impl TeaclaveManagement for TeaclaveManagementService {
             request.url,
             request.cmac,
             request.crypto_info,
-            vec![user_id],
+            vec![user_id.clone()],
         );
 
         self.write_to_db(&input_file)?;
+
+        let mut builder = EntryBuilder::new()
+            .user(user_id.to_string())
+            .message("register_input_file")
+            .result(true);
+        let entry = builder.build();
+        self.add_log(entry.clone())?;
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
 
         let response = RegisterInputFileResponse::new(input_file.external_id());
         Ok(response)
@@ -248,6 +266,17 @@ impl TeaclaveManagement for TeaclaveManagementService {
         request: Request<RegisterFunctionRequest>,
     ) -> TeaclaveServiceResponseResult<RegisterFunctionResponse> {
         let user_id = get_request_user_id(&request)?;
+
+        let mut builder = EntryBuilder::new()
+            .user(user_id.to_string())
+            .message("register_function")
+            .result(true);
+        let entry = builder.build();
+        self.add_log(entry.clone())?;
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
 
         let function = FunctionBuilder::from(request.message)
             .id(Uuid::new_v4())
@@ -550,6 +579,17 @@ impl TeaclaveManagement for TeaclaveManagementService {
         let user_id = get_request_user_id(&request)?;
         let role = get_request_role(&request)?;
 
+        let mut builder = EntryBuilder::new()
+            .user(user_id.to_string())
+            .message("create_task")
+            .result(true);
+        let entry = builder.build();
+        self.add_log(entry.clone())?;
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
+
         let request = request.message;
 
         let function: Function = self
@@ -686,6 +726,17 @@ impl TeaclaveManagement for TeaclaveManagementService {
         request: Request<ApproveTaskRequest>,
     ) -> TeaclaveServiceResponseResult<ApproveTaskResponse> {
         let user_id = get_request_user_id(&request)?;
+
+        let mut builder = EntryBuilder::new()
+            .user(user_id.to_string())
+            .message("approve_task")
+            .result(true);
+        let entry = builder.build();
+        self.add_log(entry.clone())?;
+        for entry in self.query("*", 100).unwrap() {
+            println!("{:?}", entry);
+        }
+        println!();
 
         let request = request.message;
         let ts: TaskState = self
@@ -844,7 +895,11 @@ impl TeaclaveManagementService {
             std::thread::sleep(std::time::Duration::from_secs(3));
         };
         let storage_client = Arc::new(Mutex::new(TeaclaveStorageClient::new(channel)?));
-        let service = Self { storage_client };
+        let log_service = LogService::try_new(storage_client.clone())?;
+        let service = Self {
+            storage_client,
+            log_service,
+        };
 
         #[cfg(test_mode)]
         service.add_mock_data()?;
@@ -929,6 +984,14 @@ impl TeaclaveManagementService {
             .enqueue(enqueue_request)
             .map_err(|e| ManagementServiceError::Service(e.into()))?;
         Ok(())
+    }
+
+    pub fn add_log(&self, log: Entry) -> Result<()> {
+        self.log_service.add_log(log)
+    }
+
+    pub fn query(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
+        self.log_service.query(query, limit)
     }
 
     #[cfg(test_mode)]
