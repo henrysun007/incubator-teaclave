@@ -18,6 +18,7 @@
 use super::*;
 
 use teaclave_proto::teaclave_storage_service_proto::TeaclaveStorageClient;
+use teaclave_types::{Entry, EntryBuilder};
 
 use std::convert::{From, TryFrom};
 use std::net::{Ipv4Addr, Ipv6Addr};
@@ -31,17 +32,17 @@ use tantivy::{
 };
 
 #[derive(Clone)]
-pub struct LogService {
+pub struct Auditor {
     index: Arc<Mutex<Index>>,
     reader: Arc<Mutex<IndexReader>>,
     writer: Arc<Mutex<IndexWriter>>,
 }
 
-impl LogService {
+impl Auditor {
     pub fn try_new(storage: Arc<Mutex<TeaclaveStorageClient>>) -> Result<Self> {
         let directory = db_directory::DbDirectory::new(storage);
 
-        let schema = Self::schema();
+        let schema = Self::log_schema();
 
         let settings = IndexSettings {
             sort_by_field: Some(IndexSortByField {
@@ -72,31 +73,22 @@ impl LogService {
         })
     }
 
-    pub fn schema() -> Schema {
-        let mut builder = Schema::builder();
-        builder.add_date_field("date", INDEXED | FAST | STORED);
-        builder.add_ip_addr_field("ip", INDEXED | STORED);
-        builder.add_text_field("user", TEXT | STORED);
-        builder.add_text_field("message", TEXT | STORED);
-        builder.add_bool_field("result", INDEXED | STORED);
-        let schema = builder.build();
-
-        schema
-    }
-
-    pub fn add_log(&self, log: Entry) -> Result<()> {
-        let document = Document::from(log);
-
+    pub fn add_logs(&self, logs: Vec<Entry>) -> Result<()> {
         let mut writer = self.writer.lock().unwrap();
-        writer.add_document(document)?;
+
+        for log in logs {
+            let document = Self::convert_to_doc(log);
+            writer.add_document(document)?;
+        }
+
         writer.commit()?;
 
         Ok(())
     }
 
-    pub fn query(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
+    pub fn query_logs(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
         let index = self.index.lock().unwrap();
-        let schema = Self::schema();
+        let schema = Self::log_schema();
 
         let reader = self.reader.lock().unwrap();
         let searcher = reader.searcher();
@@ -116,104 +108,15 @@ impl LogService {
 
         for (_, doc_address) in top_docs {
             let retrieved_doc = searcher.doc(doc_address)?;
-            let entry = Entry::try_from(retrieved_doc)?;
+            let entry = Self::try_convert_to_entry(retrieved_doc)?;
             entries.push(entry);
         }
 
         Ok(entries)
     }
-}
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Entry {
-    date: DateTime,
-    ip: Ipv6Addr,
-    user: String,
-    message: String,
-    result: bool,
-}
-
-impl Default for Entry {
-    fn default() -> Self {
-        let date = DateTime::from_timestamp_micros(0);
-        let ip = Ipv6Addr::UNSPECIFIED;
-        let user = String::new();
-        let message = String::new();
-        let result = false;
-
-        Self {
-            date,
-            ip,
-            user,
-            message,
-            result,
-        }
-    }
-}
-
-#[derive(Default)]
-pub struct EntryBuilder {
-    date: Option<DateTime>,
-    ip: Option<Ipv6Addr>,
-    user: Option<String>,
-    message: Option<String>,
-    result: Option<bool>,
-}
-
-impl EntryBuilder {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    pub fn date(mut self, micros: i64) -> Self {
-        let date = DateTime::from_timestamp_micros(micros);
-        self.date = Some(date);
-        self
-    }
-
-    pub fn ip(mut self, ip: Ipv4Addr) -> Self {
-        let ip = ip.to_ipv6_compatible();
-        self.ip = Some(ip);
-        self
-    }
-
-    pub fn user(mut self, user: String) -> Self {
-        self.user = Some(user);
-        self
-    }
-
-    pub fn message(mut self, message: &str) -> Self {
-        self.message = Some(message.to_owned());
-        self
-    }
-
-    pub fn result(mut self, result: bool) -> Self {
-        self.result = Some(result);
-        self
-    }
-
-    pub fn build(mut self) -> Entry {
-        let date = self.date.unwrap_or_else(|| {
-            let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-            let micros = now.as_micros() as i64;
-            DateTime::from_timestamp_micros(micros)
-        });
-
-        Entry {
-            date,
-            ip: self.ip.unwrap_or(Ipv6Addr::UNSPECIFIED),
-            user: self.user.unwrap_or_default(),
-            message: self.message.unwrap_or_default(),
-            result: self.result.unwrap_or(false),
-        }
-    }
-}
-
-impl TryFrom<Document> for Entry {
-    type Error = anyhow::Error;
-
-    fn try_from(doc: Document) -> Result<Self, Self::Error> {
-        let schema = LogService::schema();
+    pub(crate) fn try_convert_to_entry(doc: Document) -> Result<Entry> {
+        let schema = Self::log_schema();
         let date = schema.get_field("date").unwrap();
         let ip = schema.get_field("ip").unwrap();
         let user = schema.get_field("user").unwrap();
@@ -241,32 +144,48 @@ impl TryFrom<Document> for Entry {
             .and_then(|r| r.as_bool())
             .ok_or_else(|| anyhow!("failed to get result"))?;
 
-        Ok(Self {
-            date,
-            ip,
-            user: user.to_owned(),
-            message: message.to_owned(),
-            result,
-        })
-    }
-}
+        let microsecond = date.into_timestamp_micros();
 
-impl From<Entry> for Document {
-    fn from(entry: Entry) -> Self {
-        let schema = LogService::schema();
+        let entry = EntryBuilder::new()
+            .microsecond(microsecond)
+            .ip(ip.to_ipv4().unwrap())
+            .user(user.to_owned())
+            .message(message)
+            .result(result)
+            .build();
+
+        Ok(entry)
+    }
+
+    pub(crate) fn convert_to_doc(entry: Entry) -> Document {
+        let schema = Self::log_schema();
         let date = schema.get_field("date").unwrap();
         let ip = schema.get_field("ip").unwrap();
         let user = schema.get_field("user").unwrap();
         let message = schema.get_field("message").unwrap();
         let result = schema.get_field("result").unwrap();
 
+        let date_v = DateTime::from_timestamp_micros(entry.microsecond());
+
         let mut doc = Document::default();
-        doc.add_date(date, entry.date);
-        doc.add_ip_addr(ip, entry.ip);
-        doc.add_text(user, &entry.user);
-        doc.add_text(message, &entry.message);
-        doc.add_bool(result, entry.result);
+        doc.add_date(date, date_v);
+        doc.add_ip_addr(ip, entry.ip().to_ipv6_compatible());
+        doc.add_text(user, &entry.user());
+        doc.add_text(message, &entry.message());
+        doc.add_bool(result, entry.result());
 
         doc
+    }
+
+    pub(crate) fn log_schema() -> Schema {
+        let mut builder = Schema::builder();
+        builder.add_date_field("date", INDEXED | FAST | STORED);
+        builder.add_ip_addr_field("ip", INDEXED | STORED);
+        builder.add_text_field("user", TEXT | STORED);
+        builder.add_text_field("message", TEXT | STORED);
+        builder.add_bool_field("result", INDEXED | STORED);
+        let schema = builder.build();
+
+        schema
     }
 }

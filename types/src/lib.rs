@@ -18,6 +18,7 @@
 extern crate sgx_types;
 
 mod attestation;
+mod audit;
 mod crypto;
 mod error;
 mod file;
@@ -34,6 +35,7 @@ mod user;
 mod worker;
 
 pub use attestation::*;
+pub use audit::*;
 pub use crypto::*;
 pub use error::*;
 pub use file::*;

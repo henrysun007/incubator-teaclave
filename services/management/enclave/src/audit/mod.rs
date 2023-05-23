@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod auditor;
 mod db_directory;
-mod service;
 #[cfg(feature = "enclave_unit_test")]
 pub mod tests;
 
-pub use service::{Entry, EntryBuilder, LogService};
+pub use auditor::Auditor;

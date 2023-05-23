@@ -16,13 +16,12 @@
 // under the License.
 
 use super::*;
-use service::{Entry, EntryBuilder, LogService};
 
-use tantivy::{doc, schema::Document};
+use teaclave_types::EntryBuilder;
 
-pub fn test_entry_doc() {
-    let schema = LogService::schema();
-    let entry = EntryBuilder::new().date(0).build();
+pub fn test_entry_doc_conversion() {
+    let schema = Auditor::log_schema();
+    let entry = EntryBuilder::new().microsecond(0).build();
 
     let doc = schema
         .parse_document(
@@ -36,6 +35,6 @@ pub fn test_entry_doc() {
         )
         .unwrap();
 
-    assert_eq!(entry, Entry::try_from(doc.clone()).unwrap());
-    assert_eq!(Document::from(entry), doc);
+    assert_eq!(entry, Auditor::try_convert_to_entry(doc.clone()).unwrap());
+    assert_eq!(Auditor::convert_to_doc(entry), doc);
 }

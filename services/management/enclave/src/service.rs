@@ -19,7 +19,7 @@ use super::*;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use audit::{Entry, EntryBuilder, LogService};
+use audit::Auditor;
 use error::ManagementServiceError;
 
 use anyhow::anyhow;
@@ -39,7 +39,9 @@ use teaclave_proto::teaclave_frontend_service::{
     UpdateFunctionResponse, UpdateInputFileRequest, UpdateInputFileResponse,
     UpdateOutputFileRequest, UpdateOutputFileResponse,
 };
-use teaclave_proto::teaclave_management_service::TeaclaveManagement;
+use teaclave_proto::teaclave_management_service::{
+    SaveLogsRequest, SaveLogsResponse, TeaclaveManagement,
+};
 use teaclave_proto::teaclave_storage_service::{
     DeleteRequest, EnqueueRequest, GetKeysByPrefixRequest, GetRequest, PutRequest,
     TeaclaveStorageClient,
@@ -59,7 +61,7 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub(crate) struct TeaclaveManagementService {
     storage_client: Arc<Mutex<TeaclaveStorageClient>>,
-    log_service: audit::LogService,
+    auditor: audit::Auditor,
 }
 
 impl TeaclaveManagement for TeaclaveManagementService {
@@ -878,6 +880,21 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         Ok(CancelTaskResponse)
     }
+
+    // access_control: none
+    fn save_logs(
+        &self,
+        request: Request<SaveLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<SaveLogsResponse> {
+        let request = request.message;
+
+        self.auditor.add_logs(request.logs).map_err(|e| {
+            let err_msg = format!("failed to save logs {:?}", e);
+            ManagementServiceError::AuditError(err_msg)
+        })?;
+
+        Ok(SaveLogsResponse)
+    }
 }
 
 impl TeaclaveManagementService {
@@ -895,10 +912,10 @@ impl TeaclaveManagementService {
             std::thread::sleep(std::time::Duration::from_secs(3));
         };
         let storage_client = Arc::new(Mutex::new(TeaclaveStorageClient::new(channel)?));
-        let log_service = LogService::try_new(storage_client.clone())?;
+        let auditor = Auditor::try_new(storage_client.clone())?;
         let service = Self {
             storage_client,
-            log_service,
+            auditor,
         };
 
         #[cfg(test_mode)]
@@ -986,12 +1003,12 @@ impl TeaclaveManagementService {
         Ok(())
     }
 
-    pub fn add_log(&self, log: Entry) -> Result<()> {
-        self.log_service.add_log(log)
+    pub fn query(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
+        self.auditor.query_logs(query, limit)
     }
 
-    pub fn query(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
-        self.log_service.query(query, limit)
+    pub fn add_log(&self, log: Entry) -> Result<()> {
+        self.auditor.add_logs(vec![log])
     }
 
     #[cfg(test_mode)]

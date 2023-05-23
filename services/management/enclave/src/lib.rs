@@ -144,7 +144,7 @@ pub mod tests {
             service::tests::check_function_quota,
             service::tests::handle_task,
             service::tests::handle_staged_task,
-            audit::tests::test_entry_doc,
+            audit::tests::test_entry_doc_conversion,
         )
     }
 }
