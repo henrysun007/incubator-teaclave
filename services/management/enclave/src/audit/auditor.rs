@@ -150,7 +150,7 @@ impl Auditor {
             .microsecond(microsecond)
             .ip(ip.to_ipv4().unwrap())
             .user(user.to_owned())
-            .message(message)
+            .message(message.to_owned())
             .result(result)
             .build();
 

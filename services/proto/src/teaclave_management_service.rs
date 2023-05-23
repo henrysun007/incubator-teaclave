@@ -69,7 +69,7 @@ impl std::convert::TryFrom<proto::Entry> for Entry {
             .microsecond(proto.microsecond)
             .ip(ip)
             .user(proto.user)
-            .message(&proto.message)
+            .message(proto.message.clone())
             .result(proto.result)
             .build();
 

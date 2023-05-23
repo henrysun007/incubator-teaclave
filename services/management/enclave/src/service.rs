@@ -81,12 +81,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         self.write_to_db(&input_file)?;
 
-        let mut builder = EntryBuilder::new()
-            .user(user_id.to_string())
-            .message("register_input_file")
-            .result(true);
-        let entry = builder.build();
-        self.add_log(entry.clone())?;
         for entry in self.query("*", 100).unwrap() {
             println!("{:?}", entry);
         }
@@ -269,12 +263,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
     ) -> TeaclaveServiceResponseResult<RegisterFunctionResponse> {
         let user_id = get_request_user_id(&request)?;
 
-        let mut builder = EntryBuilder::new()
-            .user(user_id.to_string())
-            .message("register_function")
-            .result(true);
-        let entry = builder.build();
-        self.add_log(entry.clone())?;
         for entry in self.query("*", 100).unwrap() {
             println!("{:?}", entry);
         }
@@ -581,12 +569,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
         let user_id = get_request_user_id(&request)?;
         let role = get_request_role(&request)?;
 
-        let mut builder = EntryBuilder::new()
-            .user(user_id.to_string())
-            .message("create_task")
-            .result(true);
-        let entry = builder.build();
-        self.add_log(entry.clone())?;
         for entry in self.query("*", 100).unwrap() {
             println!("{:?}", entry);
         }
@@ -729,12 +711,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
     ) -> TeaclaveServiceResponseResult<ApproveTaskResponse> {
         let user_id = get_request_user_id(&request)?;
 
-        let mut builder = EntryBuilder::new()
-            .user(user_id.to_string())
-            .message("approve_task")
-            .result(true);
-        let entry = builder.build();
-        self.add_log(entry.clone())?;
         for entry in self.query("*", 100).unwrap() {
             println!("{:?}", entry);
         }

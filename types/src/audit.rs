@@ -67,7 +67,7 @@ impl Entry {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct EntryBuilder {
     microsecond: Option<i64>,
     ip: Option<Ipv4Addr>,
@@ -96,8 +96,8 @@ impl EntryBuilder {
         self
     }
 
-    pub fn message(mut self, message: &str) -> Self {
-        self.message = Some(message.to_owned());
+    pub fn message(mut self, message: String) -> Self {
+        self.message = Some(message);
         self
     }
 
