@@ -165,7 +165,7 @@ impl Auditor {
         let message = schema.get_field("message").unwrap();
         let result = schema.get_field("result").unwrap();
 
-        let date_v = DateTime::from_timestamp_micros(entry.microsecond());
+        let date_v = DateTime::from_timestamp_micros(entry.datetime().timestamp_micros());
 
         let mut doc = Document::default();
         doc.add_date(date, date_v);

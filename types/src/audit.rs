@@ -18,25 +18,34 @@
 use std::net::Ipv4Addr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use chrono::NaiveDateTime;
+
+/// The entry for one line audit log
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Entry {
-    microsecond: i64,
+    /// Timestamp
+    datetime: NaiveDateTime,
+    /// Where the request is from.
     ip: Ipv4Addr,
+    /// Who conducst the request.
     user: String,
+    /// What the user wants.
     message: String,
+    /// The result for the message.
+    /// true for success and false for failure
     result: bool,
 }
 
 impl Default for Entry {
     fn default() -> Self {
-        let microsecond = 0;
+        let datetime = NaiveDateTime::from_timestamp_micros(0).unwrap();
         let ip = Ipv4Addr::UNSPECIFIED;
         let user = String::new();
         let message = String::new();
         let result = false;
 
         Self {
-            microsecond,
+            datetime,
             ip,
             user,
             message,
@@ -46,8 +55,8 @@ impl Default for Entry {
 }
 
 impl Entry {
-    pub fn microsecond(&self) -> i64 {
-        self.microsecond
+    pub fn datetime(&self) -> NaiveDateTime {
+        self.datetime
     }
 
     pub fn ip(&self) -> Ipv4Addr {
@@ -69,6 +78,7 @@ impl Entry {
 
 #[derive(Default, Clone)]
 pub struct EntryBuilder {
+    /// The microsecond since the UNIX epoch
     microsecond: Option<i64>,
     ip: Option<Ipv4Addr>,
     user: Option<String>,
@@ -107,14 +117,18 @@ impl EntryBuilder {
     }
 
     pub fn build(self) -> Entry {
-        let microsecond = self.microsecond.unwrap_or_else(|| {
-            let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-            let microsecond = now.as_micros() as i64;
-            microsecond
-        });
+        let datetime = self
+            .microsecond
+            .and_then(NaiveDateTime::from_timestamp_micros)
+            .unwrap_or_else(|| {
+                // The time when the build happens
+                let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+                let microsecond = now.as_micros() as i64;
+                NaiveDateTime::from_timestamp_micros(microsecond).unwrap()
+            });
 
         Entry {
-            microsecond,
+            datetime,
             ip: self.ip.unwrap_or(Ipv4Addr::UNSPECIFIED),
             user: self.user.unwrap_or_default(),
             message: self.message.unwrap_or_default(),

@@ -22,6 +22,8 @@ use std::sync::{Arc, Mutex};
 use teaclave_proto::teaclave_management_service::SaveLogsRequest;
 use teaclave_types::Entry;
 
+/// Agent to send audit information to the auditor in the management service.
+/// To reduce the network activity, buffer and then send the information every 30 seconds.
 pub struct AuditAgent {
     management_client: Arc<Mutex<TeaclaveManagementClient>>,
     buffer: Arc<Mutex<Vec<Entry>>>,

@@ -80,7 +80,7 @@ impl std::convert::TryFrom<proto::Entry> for Entry {
 impl From<Entry> for proto::Entry {
     fn from(entry: Entry) -> Self {
         Self {
-            microsecond: entry.microsecond(),
+            microsecond: entry.datetime().timestamp_micros(),
             ip: entry.ip().octets().to_vec(),
             user: entry.user(),
             message: entry.message(),
