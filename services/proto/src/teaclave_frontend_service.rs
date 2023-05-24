@@ -1900,6 +1900,12 @@ pub struct QueryAuditLogsRequest {
     pub limit: u64,
 }
 
+impl QueryAuditLogsRequest {
+    pub fn new(query: String, limit: u64) -> Self {
+        Self { query, limit }
+    }
+}
+
 impl From<QueryAuditLogsRequest> for proto::QueryAuditLogsRequest {
     fn from(request: QueryAuditLogsRequest) -> Self {
         Self {

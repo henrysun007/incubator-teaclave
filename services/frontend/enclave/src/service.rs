@@ -50,8 +50,8 @@ use teaclave_types::{
 
 macro_rules! authentication_and_forward_to_management {
     ($service: ident, $request: ident, $func: ident, $endpoint: expr) => {{
-        let message = stringify!($func).to_owned();
-        let builder = EntryBuilder::new().message(message);
+        let function_name = stringify!($func).to_owned();
+        let builder = EntryBuilder::new();
 
         let claims = match $service.authenticate(&$request) {
             Ok(claims) => {
@@ -63,7 +63,10 @@ macro_rules! authentication_and_forward_to_management {
                         stringify!($endpoint),
                         stringify!($func)
                     );
-                    let entry = builder.result(false).build();
+                    let entry = builder
+                        .message(String::from("authenticate"))
+                        .result(false)
+                        .build();
                     $service.push_log(entry);
                     bail!(FrontendServiceError::PermissionDenied);
                 }
@@ -74,7 +77,10 @@ macro_rules! authentication_and_forward_to_management {
                     stringify!($endpoint),
                     stringify!($func)
                 );
-                let entry = builder.result(false).build();
+                let entry = builder
+                    .message(String::from("authenticate:") + &e.to_string())
+                    .result(false)
+                    .build();
                 $service.push_log(entry);
                 bail!(e);
             }
@@ -84,8 +90,12 @@ macro_rules! authentication_and_forward_to_management {
         let builder = builder.user(user);
 
         let client = $service.management_client.clone();
-        let mut client = client.lock().map_err(|_| {
-            let entry = builder.clone().result(false).build();
+        let mut client = client.lock().map_err(|e| {
+            let entry = builder
+                .clone()
+                .message(function_name.clone() + ":" + &e.to_string())
+                .result(false)
+                .build();
             $service.push_log(entry);
             FrontendServiceError::Service(anyhow!("failed to lock management client"))
         })?;
@@ -99,12 +109,16 @@ macro_rules! authentication_and_forward_to_management {
 
         client.metadata_mut().clear();
         let response = response.map_err(|e| {
-            let entry = builder.clone().result(false).build();
+            let entry = builder
+                .clone()
+                .message(function_name.clone() + ":" + &e.to_string())
+                .result(false)
+                .build();
             $service.push_log(entry);
             e
         })?;
 
-        let entry = builder.result(true).build();
+        let entry = builder.message(function_name).result(true).build();
         $service.push_log(entry);
         Ok(response)
     }};
