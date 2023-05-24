@@ -25,7 +25,7 @@ use core::convert::TryInto;
 use std::collections::HashMap;
 use teaclave_rpc::into_request;
 use teaclave_types::{
-    Executor, ExecutorType, ExternalID, FileAuthTag, FileCrypto, FunctionArgument,
+    Entry, Executor, ExecutorType, ExternalID, FileAuthTag, FileCrypto, FunctionArgument,
     FunctionArguments, FunctionBuilder, FunctionInput, FunctionOutput, OwnerList, TaskFileOwners,
     TaskResult, TaskStatus, UserID, UserList,
 };
@@ -1356,10 +1356,10 @@ impl std::convert::TryFrom<proto::GetFunctionUsageStatsRequest> for GetFunctionU
 }
 
 impl From<GetFunctionUsageStatsResponse> for proto::GetFunctionUsageStatsResponse {
-    fn from(request: GetFunctionUsageStatsResponse) -> Self {
+    fn from(response: GetFunctionUsageStatsResponse) -> Self {
         Self {
-            function_quota: request.function_quota,
-            current_usage: request.current_usage,
+            function_quota: response.function_quota,
+            current_usage: response.current_usage,
         }
     }
 }
@@ -1436,10 +1436,10 @@ impl std::convert::TryFrom<proto::ListFunctionsResponse> for ListFunctionsRespon
 }
 
 impl From<ListFunctionsResponse> for proto::ListFunctionsResponse {
-    fn from(request: ListFunctionsResponse) -> Self {
+    fn from(response: ListFunctionsResponse) -> Self {
         Self {
-            registered_functions: request.registered_functions,
-            allowed_functions: request.allowed_functions,
+            registered_functions: response.registered_functions,
+            allowed_functions: response.allowed_functions,
         }
     }
 }
@@ -1889,5 +1889,73 @@ impl std::convert::TryFrom<proto::CancelTaskResponse> for CancelTaskResponse {
 impl From<CancelTaskResponse> for proto::CancelTaskResponse {
     fn from(_response: CancelTaskResponse) -> Self {
         Self {}
+    }
+}
+
+#[into_request(TeaclaveManagementRequest::QueryAuditLogs)]
+#[into_request(TeaclaveFrontendRequest::QueryAuditLogs)]
+#[derive(Debug)]
+pub struct QueryAuditLogsRequest {
+    pub query: String,
+    pub limit: usize,
+}
+
+impl QueryAuditLogsRequest {
+    pub fn new(query: String, limit: usize) -> Self {
+        Self { query, limit }
+    }
+}
+
+impl From<QueryAuditLogsRequest> for proto::QueryAuditLogsRequest {
+    fn from(request: QueryAuditLogsRequest) -> Self {
+        Self {
+            query: request.query,
+            limit: request.limit as u64,
+        }
+    }
+}
+
+impl std::convert::TryFrom<proto::QueryAuditLogsRequest> for QueryAuditLogsRequest {
+    type Error = Error;
+
+    fn try_from(proto: proto::QueryAuditLogsRequest) -> Result<Self> {
+        Ok(Self {
+            query: proto.query,
+            limit: proto.limit as usize,
+        })
+    }
+}
+
+#[into_request(TeaclaveManagementResponse::QueryAuditLogs)]
+#[derive(Debug)]
+pub struct QueryAuditLogsResponse {
+    pub logs: Vec<Entry>,
+}
+
+impl QueryAuditLogsResponse {
+    pub fn new(logs: Vec<Entry>) -> Self {
+        Self { logs }
+    }
+}
+
+impl From<QueryAuditLogsResponse> for proto::QueryAuditLogsResponse {
+    fn from(response: QueryAuditLogsResponse) -> Self {
+        let logs: Vec<crate::teaclave_common_proto::Entry> = response
+            .logs
+            .into_iter()
+            .map(crate::teaclave_common_proto::Entry::from)
+            .collect();
+        Self { logs }
+    }
+}
+
+impl std::convert::TryFrom<proto::QueryAuditLogsResponse> for QueryAuditLogsResponse {
+    type Error = Error;
+
+    fn try_from(proto: proto::QueryAuditLogsResponse) -> Result<Self> {
+        let logs: Result<Vec<Entry>> = proto.logs.into_iter().map(Entry::try_from).collect();
+        let ret = Self { logs: logs? };
+
+        Ok(ret)
     }
 }

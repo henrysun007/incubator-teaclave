@@ -22,18 +22,11 @@ syntax = "proto3";
 
 package teaclave_management_service_proto;
 
+import "teaclave_common.proto";
 import "teaclave_frontend_service.proto";
 
-message Entry {
-    int64 microsecond = 1;
-    bytes ip = 2;
-    string user = 3;
-    string message = 4;
-    bool result = 5;
-}
-
 message SaveLogsRequest {
-    repeated Entry logs = 1;
+    repeated teaclave_common_proto.Entry logs = 1;
 }
 
 message SaveLogsResponse { }
@@ -61,4 +54,5 @@ service TeaclaveManagement {
   rpc InvokeTask (teaclave_frontend_service_proto.InvokeTaskRequest) returns (teaclave_frontend_service_proto.InvokeTaskResponse);
   rpc CancelTask (teaclave_frontend_service_proto.CancelTaskRequest) returns (teaclave_frontend_service_proto.CancelTaskResponse);
   rpc SaveLogs (SaveLogsRequest) returns (SaveLogsResponse);
+  rpc QueryAuditLogs (teaclave_frontend_service_proto.QueryAuditLogsRequest) returns (teaclave_frontend_service_proto.QueryAuditLogsResponse);
 }

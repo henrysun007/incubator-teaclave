@@ -86,6 +86,8 @@ impl Auditor {
         Ok(())
     }
 
+    /// query: the query for tantivy
+    /// limit: maximum number of the returned logs
     pub fn query_logs(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
         let index = self.index.lock().unwrap();
         let schema = Self::log_schema();

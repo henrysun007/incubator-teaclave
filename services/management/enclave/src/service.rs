@@ -32,12 +32,13 @@ use teaclave_proto::teaclave_frontend_service::{
     GetFunctionRequest, GetFunctionResponse, GetFunctionUsageStatsRequest,
     GetFunctionUsageStatsResponse, GetInputFileRequest, GetInputFileResponse, GetOutputFileRequest,
     GetOutputFileResponse, GetTaskRequest, GetTaskResponse, InvokeTaskRequest, InvokeTaskResponse,
-    ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest, RegisterFunctionResponse,
-    RegisterFusionOutputRequest, RegisterFusionOutputResponse, RegisterInputFileRequest,
-    RegisterInputFileResponse, RegisterInputFromOutputRequest, RegisterInputFromOutputResponse,
-    RegisterOutputFileRequest, RegisterOutputFileResponse, UpdateFunctionRequest,
-    UpdateFunctionResponse, UpdateInputFileRequest, UpdateInputFileResponse,
-    UpdateOutputFileRequest, UpdateOutputFileResponse,
+    ListFunctionsRequest, ListFunctionsResponse, QueryAuditLogsRequest, QueryAuditLogsResponse,
+    RegisterFunctionRequest, RegisterFunctionResponse, RegisterFusionOutputRequest,
+    RegisterFusionOutputResponse, RegisterInputFileRequest, RegisterInputFileResponse,
+    RegisterInputFromOutputRequest, RegisterInputFromOutputResponse, RegisterOutputFileRequest,
+    RegisterOutputFileResponse, UpdateFunctionRequest, UpdateFunctionResponse,
+    UpdateInputFileRequest, UpdateInputFileResponse, UpdateOutputFileRequest,
+    UpdateOutputFileResponse,
 };
 use teaclave_proto::teaclave_management_service::{
     SaveLogsRequest, SaveLogsResponse, TeaclaveManagement,
@@ -80,11 +81,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
         );
 
         self.write_to_db(&input_file)?;
-
-        for entry in self.query("*", 100).unwrap() {
-            println!("{:?}", entry);
-        }
-        println!();
 
         let response = RegisterInputFileResponse::new(input_file.external_id());
         Ok(response)
@@ -262,11 +258,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
         request: Request<RegisterFunctionRequest>,
     ) -> TeaclaveServiceResponseResult<RegisterFunctionResponse> {
         let user_id = get_request_user_id(&request)?;
-
-        for entry in self.query("*", 100).unwrap() {
-            println!("{:?}", entry);
-        }
-        println!();
 
         let function = FunctionBuilder::from(request.message)
             .id(Uuid::new_v4())
@@ -569,11 +560,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
         let user_id = get_request_user_id(&request)?;
         let role = get_request_role(&request)?;
 
-        for entry in self.query("*", 100).unwrap() {
-            println!("{:?}", entry);
-        }
-        println!();
-
         let request = request.message;
 
         let function: Function = self
@@ -710,11 +696,6 @@ impl TeaclaveManagement for TeaclaveManagementService {
         request: Request<ApproveTaskRequest>,
     ) -> TeaclaveServiceResponseResult<ApproveTaskResponse> {
         let user_id = get_request_user_id(&request)?;
-
-        for entry in self.query("*", 100).unwrap() {
-            println!("{:?}", entry);
-        }
-        println!();
 
         let request = request.message;
         let ts: TaskState = self
@@ -871,6 +852,31 @@ impl TeaclaveManagement for TeaclaveManagementService {
 
         Ok(SaveLogsResponse)
     }
+
+    // access_control: only
+    // user_role == admin
+    fn query_audit_logs(
+        &self,
+        request: Request<QueryAuditLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<QueryAuditLogsResponse> {
+        let role = get_request_role(&request)?;
+        ensure!(
+            role == UserRole::PlatformAdmin,
+            ManagementServiceError::PermissionDenied
+        );
+
+        let request = request.message;
+        let logs = self
+            .auditor
+            .query_logs(&request.query, request.limit as usize)
+            .map_err(|e| {
+                let err_msg = format!("failed to query logs {:?}", e);
+                ManagementServiceError::AuditError(err_msg)
+            })?;
+
+        let response = QueryAuditLogsResponse::new(logs);
+        Ok(response)
+    }
 }
 
 impl TeaclaveManagementService {
@@ -977,14 +983,6 @@ impl TeaclaveManagementService {
             .enqueue(enqueue_request)
             .map_err(|e| ManagementServiceError::Service(e.into()))?;
         Ok(())
-    }
-
-    pub fn query(&self, query: &str, limit: usize) -> Result<Vec<Entry>> {
-        self.auditor.query_logs(query, limit)
-    }
-
-    pub fn add_log(&self, log: Entry) -> Result<()> {
-        self.auditor.add_logs(vec![log])
     }
 
     #[cfg(test_mode)]

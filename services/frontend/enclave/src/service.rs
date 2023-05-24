@@ -32,12 +32,13 @@ use teaclave_proto::teaclave_frontend_service::{
     GetFunctionRequest, GetFunctionResponse, GetFunctionUsageStatsRequest,
     GetFunctionUsageStatsResponse, GetInputFileRequest, GetInputFileResponse, GetOutputFileRequest,
     GetOutputFileResponse, GetTaskRequest, GetTaskResponse, InvokeTaskRequest, InvokeTaskResponse,
-    ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest, RegisterFunctionResponse,
-    RegisterFusionOutputRequest, RegisterFusionOutputResponse, RegisterInputFileRequest,
-    RegisterInputFileResponse, RegisterInputFromOutputRequest, RegisterInputFromOutputResponse,
-    RegisterOutputFileRequest, RegisterOutputFileResponse, TeaclaveFrontend, UpdateFunctionRequest,
-    UpdateFunctionResponse, UpdateInputFileRequest, UpdateInputFileResponse,
-    UpdateOutputFileRequest, UpdateOutputFileResponse,
+    ListFunctionsRequest, ListFunctionsResponse, QueryAuditLogsRequest, QueryAuditLogsResponse,
+    RegisterFunctionRequest, RegisterFunctionResponse, RegisterFusionOutputRequest,
+    RegisterFusionOutputResponse, RegisterInputFileRequest, RegisterInputFileResponse,
+    RegisterInputFromOutputRequest, RegisterInputFromOutputResponse, RegisterOutputFileRequest,
+    RegisterOutputFileResponse, TeaclaveFrontend, UpdateFunctionRequest, UpdateFunctionResponse,
+    UpdateInputFileRequest, UpdateInputFileResponse, UpdateOutputFileRequest,
+    UpdateOutputFileResponse,
 };
 use teaclave_proto::teaclave_management_service::TeaclaveManagementClient;
 use teaclave_rpc::endpoint::Endpoint;
@@ -49,8 +50,8 @@ use teaclave_types::{
 
 macro_rules! authentication_and_forward_to_management {
     ($service: ident, $request: ident, $func: ident, $endpoint: expr) => {{
-        let message = stringify!($func).to_owned();
-        let builder = EntryBuilder::new().message(message);
+        let function_name = stringify!($func).to_owned();
+        let builder = EntryBuilder::new();
 
         let claims = match $service.authenticate(&$request) {
             Ok(claims) => {
@@ -62,7 +63,10 @@ macro_rules! authentication_and_forward_to_management {
                         stringify!($endpoint),
                         stringify!($func)
                     );
-                    let entry = builder.result(false).build();
+                    let entry = builder
+                        .message(String::from("authenticate"))
+                        .result(false)
+                        .build();
                     $service.push_log(entry);
                     bail!(FrontendServiceError::PermissionDenied);
                 }
@@ -73,7 +77,10 @@ macro_rules! authentication_and_forward_to_management {
                     stringify!($endpoint),
                     stringify!($func)
                 );
-                let entry = builder.result(false).build();
+                let entry = builder
+                    .message(String::from("authenticate:") + &e.to_string())
+                    .result(false)
+                    .build();
                 $service.push_log(entry);
                 bail!(e);
             }
@@ -83,8 +90,12 @@ macro_rules! authentication_and_forward_to_management {
         let builder = builder.user(user);
 
         let client = $service.management_client.clone();
-        let mut client = client.lock().map_err(|_| {
-            let entry = builder.clone().result(false).build();
+        let mut client = client.lock().map_err(|e| {
+            let entry = builder
+                .clone()
+                .message(function_name.clone() + ":" + &e.to_string())
+                .result(false)
+                .build();
             $service.push_log(entry);
             FrontendServiceError::Service(anyhow!("failed to lock management client"))
         })?;
@@ -98,12 +109,16 @@ macro_rules! authentication_and_forward_to_management {
 
         client.metadata_mut().clear();
         let response = response.map_err(|e| {
-            let entry = builder.clone().result(false).build();
+            let entry = builder
+                .clone()
+                .message(function_name.clone() + ":" + &e.to_string())
+                .result(false)
+                .build();
             $service.push_log(entry);
             e
         })?;
 
-        let entry = builder.result(true).build();
+        let entry = builder.message(function_name).result(true).build();
         $service.push_log(entry);
         Ok(response)
     }};
@@ -132,6 +147,7 @@ enum Endpoints {
     ApproveTask,
     InvokeTask,
     CancelTask,
+    QueryAuditLogs,
 }
 
 fn authorize(claims: &UserAuthClaims, request: Endpoints) -> bool {
@@ -166,6 +182,7 @@ fn authorize(claims: &UserAuthClaims, request: Endpoints) -> bool {
         Endpoints::GetFunction | Endpoints::ListFunctions | Endpoints::GetFunctionUsageStats => {
             role.is_function_owner() || role.is_data_owner()
         }
+        Endpoints::QueryAuditLogs => false,
     }
 }
 
@@ -422,6 +439,18 @@ impl TeaclaveFrontend for TeaclaveFrontendService {
         request: Request<CancelTaskRequest>,
     ) -> TeaclaveServiceResponseResult<CancelTaskResponse> {
         authentication_and_forward_to_management!(self, request, cancel_task, Endpoints::CancelTask)
+    }
+
+    fn query_audit_logs(
+        &self,
+        request: Request<QueryAuditLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<QueryAuditLogsResponse> {
+        authentication_and_forward_to_management!(
+            self,
+            request,
+            query_audit_logs,
+            Endpoints::QueryAuditLogs
+        )
     }
 }
 

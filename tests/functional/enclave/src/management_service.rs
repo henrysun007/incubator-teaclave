@@ -109,7 +109,8 @@ fn test_get_input_file() {
     let cmac = FileAuthTag::mock();
     let crypto_info = FileCrypto::default();
 
-    let mut client = authorized_client("mock_user");
+    let user_success = "mock_user";
+    let mut client = authorized_client(user_success);
     let request = RegisterInputFileRequest::new(url, cmac, crypto_info);
     let response = client.register_input_file(request).unwrap();
     let data_id = response.data_id;
@@ -117,7 +118,8 @@ fn test_get_input_file() {
     let response = client.get_input_file(request);
     assert!(response.is_ok());
 
-    let mut client = authorized_client("mock_another_user");
+    let user_failure = "mock_another_user";
+    let mut client = authorized_client(user_failure);
     let request = GetInputFileRequest::new(data_id);
     let response = client.get_input_file(request);
     assert!(response.is_err());
@@ -252,11 +254,13 @@ fn test_update_function() {
 
 #[test_case]
 fn test_list_functions() {
+    let user_id = "mock_user";
+
     let request = ListFunctionsRequest {
-        user_id: "mock_user".into(),
+        user_id: user_id.into(),
     };
 
-    let mut client = authorized_client("mock_user");
+    let mut client = authorized_client(user_id);
     let response = client.list_functions(request);
 
     assert!(response.is_ok());

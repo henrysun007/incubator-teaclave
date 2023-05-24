@@ -264,6 +264,15 @@ message CancelTaskRequest {
 
 message CancelTaskResponse { }
 
+message QueryAuditLogsRequest {
+    string query = 1;
+    uint64 limit = 2;
+}
+
+message QueryAuditLogsResponse {
+    repeated teaclave_common_proto.Entry logs = 1;
+}
+
 service TeaclaveFrontend {
   rpc RegisterInputFile (RegisterInputFileRequest) returns (RegisterInputFileResponse);
   rpc RegisterOutputFile (RegisterOutputFileRequest) returns (RegisterOutputFileResponse);
@@ -286,4 +295,5 @@ service TeaclaveFrontend {
   rpc ApproveTask (ApproveTaskRequest) returns (ApproveTaskResponse);
   rpc InvokeTask (InvokeTaskRequest) returns (InvokeTaskResponse);
   rpc CancelTask (CancelTaskRequest) returns (CancelTaskResponse);
+  rpc QueryAuditLogs (QueryAuditLogsRequest) returns (QueryAuditLogsResponse);
 }

@@ -21,7 +21,7 @@
 /* DO NOT MODIFY THIS MANUALLY! This file was generated using cbindgen.
  * To generate this file:
  * 1. Get the latest cbindgen using `cargo install --force cbindgen`
- * 2. Run `rustup run nightly cbindgen ../rust -c cbindgen.toml -o
+ * 2. Run `cbindgen -v ../rust -c cbindgen.toml -o
      teaclave_client_sdk.h` or `make`.
  */
 
@@ -33,6 +33,14 @@
 typedef struct AuthenticationClient AuthenticationClient;
 
 typedef struct FrontendClient FrontendClient;
+
+typedef struct c_entry {
+  int64_t microsecond;
+  uint8_t ip[4];
+  void *user;
+  void *message;
+  bool result;
+} c_entry;
 
 /**
  * Connect to Teaclave Authentication Service.
@@ -202,6 +210,22 @@ int teaclave_get_task_result(struct FrontendClient *client,
                              const char *task_id,
                              char *task_result,
                              size_t *task_result_len);
+
+/**
+ * Query audit logs according to `query`. `query` is the query for tantivy. The result will be
+ * save in the `log_buffer` buffer, and set corresponding `log_len` argument. Remember to free the
+ * user and message inside c_entry to avoid memory leak.
+ *
+ * The function returns 0 for success. On error, the function returns 1.
+ *
+ * # Safety
+ *
+ * Inconsistent length of allocated buffer may caused overflow.
+ */
+int teaclave_query_audit_logs(struct FrontendClient *client,
+                              const char *query,
+                              struct c_entry *log_buffer,
+                              size_t *log_len);
 
 /**
  * Send JSON serialized request to the service with the `client` and
@@ -540,3 +564,29 @@ int teaclave_get_task_serialized(struct FrontendClient *client,
                                  const char *serialized_request,
                                  char *serialized_response,
                                  size_t *serialized_response_len);
+
+/**
+ * Send JSON serialized request to the service with the `client` and
+ * get the serialized response.
+ *
+ * # Arguments
+ *
+ * * `client`: service client.
+ * * `serialized_request`; JSON serialized request
+ * * `serialized_response`: buffer to store the JSON serialized response.
+ * * `serialized_response_len`: length of the allocated
+ *   `serialized_response`, will be set as the length of
+ *   `serialized_response` when return successfully.
+ *
+ * # Return
+ *
+ * The function returns 0 for success. On error, the function returns 1.
+ *
+ * # Safety
+ *
+ * Inconsistent length of allocated buffer may caused overflow.
+ */
+int teaclave_query_audit_logs_serialized(struct FrontendClient *client,
+                                         const char *serialized_request,
+                                         char *serialized_response,
+                                         size_t *serialized_response_len);
