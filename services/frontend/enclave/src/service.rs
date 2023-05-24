@@ -32,12 +32,13 @@ use teaclave_proto::teaclave_frontend_service::{
     GetFunctionRequest, GetFunctionResponse, GetFunctionUsageStatsRequest,
     GetFunctionUsageStatsResponse, GetInputFileRequest, GetInputFileResponse, GetOutputFileRequest,
     GetOutputFileResponse, GetTaskRequest, GetTaskResponse, InvokeTaskRequest, InvokeTaskResponse,
-    ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest, RegisterFunctionResponse,
-    RegisterFusionOutputRequest, RegisterFusionOutputResponse, RegisterInputFileRequest,
-    RegisterInputFileResponse, RegisterInputFromOutputRequest, RegisterInputFromOutputResponse,
-    RegisterOutputFileRequest, RegisterOutputFileResponse, TeaclaveFrontend, UpdateFunctionRequest,
-    UpdateFunctionResponse, UpdateInputFileRequest, UpdateInputFileResponse,
-    UpdateOutputFileRequest, UpdateOutputFileResponse,
+    ListFunctionsRequest, ListFunctionsResponse, QueryAuditLogsRequest, QueryAuditLogsResponse,
+    RegisterFunctionRequest, RegisterFunctionResponse, RegisterFusionOutputRequest,
+    RegisterFusionOutputResponse, RegisterInputFileRequest, RegisterInputFileResponse,
+    RegisterInputFromOutputRequest, RegisterInputFromOutputResponse, RegisterOutputFileRequest,
+    RegisterOutputFileResponse, TeaclaveFrontend, UpdateFunctionRequest, UpdateFunctionResponse,
+    UpdateInputFileRequest, UpdateInputFileResponse, UpdateOutputFileRequest,
+    UpdateOutputFileResponse,
 };
 use teaclave_proto::teaclave_management_service::TeaclaveManagementClient;
 use teaclave_rpc::endpoint::Endpoint;
@@ -132,6 +133,7 @@ enum Endpoints {
     ApproveTask,
     InvokeTask,
     CancelTask,
+    QueryAuditLogs,
 }
 
 fn authorize(claims: &UserAuthClaims, request: Endpoints) -> bool {
@@ -166,6 +168,7 @@ fn authorize(claims: &UserAuthClaims, request: Endpoints) -> bool {
         Endpoints::GetFunction | Endpoints::ListFunctions | Endpoints::GetFunctionUsageStats => {
             role.is_function_owner() || role.is_data_owner()
         }
+        Endpoints::QueryAuditLogs => false,
     }
 }
 
@@ -422,6 +425,18 @@ impl TeaclaveFrontend for TeaclaveFrontendService {
         request: Request<CancelTaskRequest>,
     ) -> TeaclaveServiceResponseResult<CancelTaskResponse> {
         authentication_and_forward_to_management!(self, request, cancel_task, Endpoints::CancelTask)
+    }
+
+    fn query_audit_logs(
+        &self,
+        request: Request<QueryAuditLogsRequest>,
+    ) -> TeaclaveServiceResponseResult<QueryAuditLogsResponse> {
+        authentication_and_forward_to_management!(
+            self,
+            request,
+            query_audit_logs,
+            Endpoints::QueryAuditLogs
+        )
     }
 }
 
