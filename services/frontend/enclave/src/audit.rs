@@ -50,7 +50,7 @@ impl AuditAgent {
                 let request = SaveLogsRequest { logs };
 
                 let mut client = self.management_client.lock().unwrap();
-                client.save_logs(request);
+                let _ = client.save_logs(request);
             }
 
             std::thread::sleep(std::time::Duration::from_secs(30));

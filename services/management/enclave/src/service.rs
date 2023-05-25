@@ -17,8 +17,6 @@
 
 use super::*;
 
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use audit::Auditor;
 use error::ManagementServiceError;
 

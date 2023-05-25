@@ -20,10 +20,7 @@ use super::*;
 use teaclave_proto::teaclave_storage_service_proto::TeaclaveStorageClient;
 use teaclave_types::{Entry, EntryBuilder};
 
-use std::convert::{From, TryFrom};
-use std::net::{Ipv4Addr, Ipv6Addr};
 use std::sync::{Arc, Mutex};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use anyhow::{anyhow, Result};
 use tantivy::{

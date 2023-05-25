@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// This file references
+// https://github.com/quickwit-oss/tantivy/blob/main/src/directory/ram_directory.rs
+
 use teaclave_proto::teaclave_storage_service::{
     DeleteRequest, GetRequest, PutRequest, TeaclaveStorageClient,
 };
@@ -35,19 +38,16 @@ pub static META_FILEPATH: Lazy<&'static Path> = Lazy::new(|| Path::new("meta.jso
 pub static DB_PREFIX: Lazy<String> = Lazy::new(|| String::from("tantivy/"));
 static INDEX_WRITER_LOCK: Lazy<&'static Path> = Lazy::new(|| Path::new(".tantivy-writer.lock"));
 
-/// Writer associated with the [`DbDirectory`].
-///
-/// The Writer just writes a buffer.
-struct VecWriter {
+struct Cache {
     path: PathBuf,
     shared_directory: DbDirectory,
     data: Cursor<Vec<u8>>,
     is_flushed: bool,
 }
 
-impl VecWriter {
-    fn new(path_buf: PathBuf, shared_directory: DbDirectory) -> VecWriter {
-        VecWriter {
+impl Cache {
+    fn new(path_buf: PathBuf, shared_directory: DbDirectory) -> Self {
+        Cache {
             path: path_buf,
             data: Cursor::new(Vec::new()),
             shared_directory,
@@ -56,26 +56,21 @@ impl VecWriter {
     }
 }
 
-impl Drop for VecWriter {
+impl Drop for Cache {
     fn drop(&mut self) {
         if !self.is_flushed {
-            warn!(
-                "You forgot to flush {:?} before its writer got Drop. Do not rely on drop. This \
-                 also occurs when the indexer crashed, so you may want to check the logs for the \
-                 root cause.",
-                self.path
-            )
+            let _ = self.flush();
         }
     }
 }
 
-impl Seek for VecWriter {
+impl Seek for Cache {
     fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
         self.data.seek(pos)
     }
 }
 
-impl Write for VecWriter {
+impl Write for Cache {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.is_flushed = false;
         self.data.write_all(buf)?;
@@ -97,7 +92,7 @@ impl Write for VecWriter {
     }
 }
 
-impl TerminatingWrite for VecWriter {
+impl TerminatingWrite for Cache {
     fn terminate_ref(&mut self, _: AntiCallToken) -> io::Result<()> {
         self.flush()
     }
@@ -124,7 +119,7 @@ impl DbDirectory {
             watch_router: Arc::default(),
         };
 
-        dir.delete(&INDEX_WRITER_LOCK);
+        let _ = dir.delete(&INDEX_WRITER_LOCK);
 
         dir
     }
@@ -180,7 +175,7 @@ impl Directory for DbDirectory {
     }
 
     fn open_write(&self, path: &Path) -> Result<WritePtr, OpenWriteError> {
-        let vec_writer = VecWriter::new(path.to_owned(), self.clone());
+        let cache = Cache::new(path.to_owned(), self.clone());
         let exists = self.exists(path).unwrap();
         // force the creation of the file to mimic the MMap directory.
         if exists {
@@ -192,7 +187,7 @@ impl Directory for DbDirectory {
 
             Err(OpenWriteError::FileAlreadyExists(PathBuf::from(path)))
         } else {
-            Ok(BufWriter::new(Box::new(vec_writer)))
+            Ok(BufWriter::new(Box::new(cache)))
         }
     }
 

@@ -31,9 +31,7 @@ use teaclave_binder::proto::{
 use teaclave_binder::{handle_ecall, register_ecall_handler};
 use teaclave_config::build::AS_ROOT_CA_CERT;
 use teaclave_config::RuntimeConfig;
-use teaclave_proto::teaclave_authentication_service::{
-    TeaclaveAuthenticationInternalClient, UserAuthenticateRequest,
-};
+use teaclave_proto::teaclave_authentication_service::TeaclaveAuthenticationInternalClient;
 use teaclave_proto::teaclave_frontend_service::{
     TeaclaveFrontendRequest, TeaclaveFrontendResponse,
 };

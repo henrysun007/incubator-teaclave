@@ -18,7 +18,7 @@
 use crate::error::AuthenticationError;
 use crate::error::FrontendServiceError;
 
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, Result};
 use std::sync::{Arc, Mutex};
 
 use teaclave_proto::teaclave_authentication_service::{
@@ -41,7 +41,6 @@ use teaclave_proto::teaclave_frontend_service::{
     UpdateOutputFileResponse,
 };
 use teaclave_proto::teaclave_management_service::TeaclaveManagementClient;
-use teaclave_rpc::endpoint::Endpoint;
 use teaclave_rpc::Request;
 use teaclave_service_enclave_utils::{bail, teaclave_service};
 use teaclave_types::{
