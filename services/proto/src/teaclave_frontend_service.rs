@@ -1897,11 +1897,11 @@ impl From<CancelTaskResponse> for proto::CancelTaskResponse {
 #[derive(Debug)]
 pub struct QueryAuditLogsRequest {
     pub query: String,
-    pub limit: u64,
+    pub limit: usize,
 }
 
 impl QueryAuditLogsRequest {
-    pub fn new(query: String, limit: u64) -> Self {
+    pub fn new(query: String, limit: usize) -> Self {
         Self { query, limit }
     }
 }
@@ -1910,7 +1910,7 @@ impl From<QueryAuditLogsRequest> for proto::QueryAuditLogsRequest {
     fn from(request: QueryAuditLogsRequest) -> Self {
         Self {
             query: request.query,
-            limit: request.limit,
+            limit: request.limit as u64,
         }
     }
 }
@@ -1921,7 +1921,7 @@ impl std::convert::TryFrom<proto::QueryAuditLogsRequest> for QueryAuditLogsReque
     fn try_from(proto: proto::QueryAuditLogsRequest) -> Result<Self> {
         Ok(Self {
             query: proto.query,
-            limit: proto.limit,
+            limit: proto.limit as usize,
         })
     }
 }

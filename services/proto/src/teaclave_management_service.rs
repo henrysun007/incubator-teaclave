@@ -26,7 +26,6 @@ use teaclave_rpc::into_request;
 use teaclave_types::Entry;
 
 use anyhow::{Error, Result};
-use core::convert::TryInto;
 
 #[into_request(TeaclaveManagementRequest::SaveLogs)]
 #[derive(Debug, Default)]
